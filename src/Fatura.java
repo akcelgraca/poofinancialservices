@@ -52,4 +52,45 @@ public class Fatura {
         this.produtos.remove(produto);
     }
 
+    public double calcularTotalSemIVA() {
+        double totalSemIVA = 0.0;
+        for (Produto produto : produtos) {
+            totalSemIVA += produto.calcularValorTotalSemIVA();
+        }
+        return totalSemIVA;
+    }
+
+    public double calcularTotalIVA() {
+        double totalIVA = 0.0;
+        for (Produto produto : produtos) {
+            totalIVA += produto.calcularIVA();
+        }
+        return totalIVA;
+    }
+
+    public double calcularTotalComIVA() {
+        double totalComIVA = 0.0;
+        for (Produto produto : produtos) {
+            totalComIVA += produto.calcularValorTotalComIVA();
+        }
+        return totalComIVA;
+    }
+
+    @Override
+    public String toString() {
+        String detalhes = "Fatura Nº " + numero + "\n";
+        detalhes += "Cliente: " + cliente.getNome() + "\n";
+        detalhes += "Data: " + data + "\n";
+        detalhes += "Produtos:\n";
+
+        for (Produto produto : produtos) {
+            detalhes += produto.toString() + "\n";
+        }
+
+        detalhes += "Total sem IVA: " + calcularTotalSemIVA() + "\n";
+        detalhes += "Total IVA: " + calcularTotalIVA() + "\n";
+        detalhes += "Total com IVA: " + calcularTotalComIVA() + "\n";
+
+        return detalhes;
+    }
 }
