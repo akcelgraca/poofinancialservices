@@ -52,5 +52,4 @@ public class Fatura {
         this.produtos.remove(produto);
     }
 
-    public double
 }
