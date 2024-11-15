@@ -1,22 +1,18 @@
-/**
- * Classe Cliente - Representa um cliente na aplicação POO Financial Services.
- */
 public class Cliente {
+
+    public enum Localizacao{
+        PortugalContinental,
+        Madeira,
+        Açores;
+    }
 
     // Atributos
     private String nome;
-    private String numeroContribuinte; // Número de contribuinte (NIF)
-    private String localizacao; // Ex.: "Portugal Continental", "Madeira", "Açores"
-
-    // Construtor padrão
-    public Cliente() {
-        this.nome = "";
-        this.numeroContribuinte = "";
-        this.localizacao = "";
-    }
+    private String numeroContribuinte; // NIF
+    private Localizacao localizacao;
 
     // Construtor com parâmetros
-    public Cliente(String nome, String numeroContribuinte, String localizacao) {
+    public Cliente(String nome, String numeroContribuinte, Localizacao localizacao) {
         if (!validarNumeroContribuinte(numeroContribuinte)) {
             throw new IllegalArgumentException("Número de contribuinte inválido!");
         }
@@ -38,24 +34,29 @@ public class Cliente {
         return numeroContribuinte;
     }
 
-    public void setNumeroContribuinte(String numeroContribuinte) {
-        if (!validarNumeroContribuinte(numeroContribuinte)) {
-            throw new IllegalArgumentException("Número de contribuinte inválido!");
-        }
+    public void setNumeroContribuinte(String numeroContribuinte){
+        verificarcontribuinte(numeroContribuinte);
         this.numeroContribuinte = numeroContribuinte;
     }
 
-    public String getLocalizacao() {
+    public Localizacao getLocalizacao() {
         return localizacao;
     }
 
-    public void setLocalizacao(String localizacao) {
+    public void setLocalizacao(Localizacao localizacao) {
         this.localizacao = localizacao;
     }
 
     // Método para validar o número de contribuinte (exemplo simples)
     private boolean validarNumeroContribuinte(String numeroContribuinte) {
         return numeroContribuinte != null && numeroContribuinte.matches("\\d{9}");
+    }
+
+    public void verificarcontribuinte(String num){
+        if (!validarNumeroContribuinte(num)) {
+            throw new IllegalArgumentException("Número de contribuinte inválido!");
+        }
+
     }
 
     // Método toString para exibir detalhes do cliente
