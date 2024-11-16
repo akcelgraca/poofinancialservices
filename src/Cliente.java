@@ -8,11 +8,11 @@ public abstract class Cliente {
 
     // Atributos
     private String nome;
-    private String numeroContribuinte; // NIF
+    private int numeroContribuinte; // NIF
     private Localizacao localizacao;
 
     // Construtor com parâmetros
-    public Cliente(String nome, String numeroContribuinte, Localizacao localizacao) {
+    public Cliente(String nome, int numeroContribuinte, Localizacao localizacao) {
         this.nome = nome;
         this.numeroContribuinte = numeroContribuinte;
         this.localizacao = localizacao;
@@ -27,11 +27,11 @@ public abstract class Cliente {
         this.nome = nome;
     }
 
-    public String getNumeroContribuinte() {
+    public int getNumeroContribuinte() {
         return numeroContribuinte;
     }
 
-    public void setNumeroContribuinte(String numeroContribuinte){
+    public void setNumeroContribuinte(int numeroContribuinte){
         this.numeroContribuinte = numeroContribuinte;
     }
 
@@ -43,10 +43,10 @@ public abstract class Cliente {
         this.localizacao = localizacao;
     }
 
-    // Método para validar o número de contribuinte (exemplo simples)
-    /*private boolean validarNumeroContribuinte(String numeroContribuinte) {
-        return numeroContribuinte != null && numeroContribuinte.matches("\\d{9}");
-    }*/
+    // Método para validar o número de contribuinte
+    private boolean validarNumeroContribuinte(int numeroContribuinte) {
+        return String.valueOf(numeroContribuinte).length() == 9;
+    }
 
     // Método toString para exibir detalhes do cliente
     @Override
