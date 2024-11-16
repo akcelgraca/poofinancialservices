@@ -22,9 +22,6 @@ public class Produtoalimentar extends Produto {
         this.isBiologico = isBiologico;
         this.tipoTaxa = tipoTaxa;
         this.categoria = categoria;
-        if (certificacoes != null && certificacoes.size() > 4) {
-            throw new IllegalArgumentException("O número máximo de certificações é 4.");
-        }
         this.certificacoes = new ArrayList<>();
         this.certificacoes.add("ISO22000");
         this.certificacoes.add("FSSC22000");
@@ -54,9 +51,6 @@ public class Produtoalimentar extends Produto {
     }
 
     public void setCertificacoes(ArrayList<String> certificacoes){
-        if(certificacoes != null && certificacoes.size() > 4){
-            throw new IllegalArgumentException("O número máximo de certificações é 4");
-        }
         this.certificacoes = certificacoes;
     }
 
