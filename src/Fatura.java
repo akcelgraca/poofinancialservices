@@ -63,7 +63,7 @@ public class Fatura {
     public double calcularTotalIVA() {
         double totalIVA = 0.0;
         for (Produto produto : produtos) {
-            totalIVA += produto.calcularIVA();
+            totalIVA += produto.calcularIVA(cliente.getLocalizacao());
         }
         return totalIVA;
     }

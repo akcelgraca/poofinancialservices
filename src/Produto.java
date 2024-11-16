@@ -70,6 +70,8 @@ public abstract class Produto {
         return calcularValorTotalSemIVA() + calcularIVA();
     }
 
+    public abstract double calcularIVA(Cliente.Localizacao localizacao);
+
     // Método toString
     @Override
     public String toString() {

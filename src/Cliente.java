@@ -1,4 +1,4 @@
-public class Cliente {
+public abstract class Cliente {
 
     public enum Localizacao{
         PortugalContinental,
