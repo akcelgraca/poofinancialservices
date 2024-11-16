@@ -1,6 +1,6 @@
-public class Produtofarmacia extends Produto {
+public abstract class Produtofarmacia extends Produto {
     public enum Prescricao{
-        ComPescricao,
+        ComPrescricao,
         Normais
     }
 
@@ -13,10 +13,12 @@ public class Produtofarmacia extends Produto {
     }
     private Prescricao prescricao;
     private CategoriaF categoriaf;
-    public Produtofarmacia(String codigo, String nome, String descricao,int quantidade,double valorUnitario){
+    private String medico;
+    public Produtofarmacia(String codigo, String nome, String descricao,int quantidade,double valorUnitario,Prescricao prescricao, CategoriaF categoriaf, String medico){
         super(codigo,nome,descricao,quantidade,valorUnitario);
         this.prescricao = prescricao;
         this.categoriaf = categoriaf;
+        this.medico = medico;
     }
 
     public Prescricao getPrescricao(){
@@ -35,11 +37,19 @@ public class Produtofarmacia extends Produto {
         this.categoriaf = categoriaf;
     }
 
+    public String getMedico(){
+        return medico;
+    }
+
+    public void setMedico(String medico){
+        this.medico = medico;
+    }
+
     @Override
     public double calcularIVA(Cliente.Localizacao localizacao) {
         double taxa = 0.0;
         switch (prescricao){
-            case ComPescricao:
+            case ComPrescricao:
                 taxa = switch (localizacao){
                     case PortugalContinental -> 0.06;
                     case Madeira -> 0.05;
@@ -56,6 +66,20 @@ public class Produtofarmacia extends Produto {
                 break;
         }
         return calcularValorTotalSemIVA() * taxa;
+    }
+    // Método toString
+    @Override
+    public String toString() {
+        return "Produtofarmacia{" +
+                "codigo='" + getCodigo() + '\'' +
+                ", nome='" + getNome() + '\'' +
+                ", descricao='" + getDescricao() + '\'' +
+                ", quantidade=" + getQuantidade() +
+                ", valorUnitario=" + getValorUnitario() +
+                ", prescricao=" + prescricao +
+                ", categoriaf=" + categoriaf +
+                (prescricao == Prescricao.ComPrescricao ? ", medico='" + medico + '\'' : "") +
+                '}';
     }
 }
 

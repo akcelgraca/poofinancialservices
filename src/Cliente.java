@@ -51,11 +51,9 @@ public abstract class Cliente {
     // Método toString para exibir detalhes do cliente
     @Override
     public String toString() {
-        return "Cliente{" +
-                "nome='" + nome + '\'' +
-                ", numeroContribuinte='" + numeroContribuinte + '\'' +
-                ", localizacao='" + localizacao + '\'' +
-                '}';
+        return "Nome: " + nome + "\n" +
+                "NIF: " + numeroContribuinte + "\n" +
+                "Localizacao: " + localizacao + "\n";
     }
 }
 

@@ -1,5 +1,5 @@
 import java.util.ArrayList;
-public class Produtoalimentar extends Produto {
+public abstract class Produtoalimentar extends Produto {
     private boolean isBiologico;
     private TipoTaxa tipoTaxa;
     private ArrayList<String> certificacoes;
@@ -61,6 +61,7 @@ public class Produtoalimentar extends Produto {
     public void setBiologico(boolean isBiologico){
         this.isBiologico = isBiologico;
     }
+
 
 
     @Override
