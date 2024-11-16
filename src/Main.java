@@ -3,24 +3,31 @@ import java.util.Scanner;
 
 public class Main {
     private static ArrayList<Cliente> clientes = new ArrayList<>();
+    private static ArrayList<Fatura> faturas = new ArrayList<>();
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         int opcao;
 
         do {
-            System.out.println("\n--- Menu de Gestão de Clientes ---");
+            System.out.println("\n--- Menu de Gestão ---");
             System.out.println("1. Criar Cliente");
             System.out.println("2. Editar Cliente");
             System.out.println("3. Listar Clientes");
+            System.out.println("4. Criar Fatura");
+            System.out.println("5. Editar Fatura");
+            System.out.println("6. Listar Faturas");
             System.out.println("0. Sair");
-            System.out.println("Escolha uma opção: ");
+            System.out.print("Escolha uma opção: ");
             opcao = scanner.nextInt();
             scanner.nextLine();
 
-            switch (opcao){
+            switch (opcao) {
                 case 1 -> criar_cliente(scanner);
                 case 2 -> editar_clientes(scanner);
                 case 3 -> listar_clientes();
+                case 4 -> criar_faturas(scanner);
+                case 5 -> editar_fatura(scanner);
+                case 6 -> listarFaturas();
                 case 0 -> System.out.println("A sair...");
                 default -> System.out.println("Opção inválida.");
             }
@@ -102,6 +109,156 @@ public class Main {
         System.out.println("--- Lista de Clientes ---");
         for(Cliente cliente : clientes){
             System.out.println(cliente);
+        }
+    }
+
+    private static void criar_faturas(Scanner scanner){
+        System.out.println("Digite o número da  fatura: ");
+        int numeroFatura = scanner.nextInt();
+        scanner.nextLine();
+
+        System.out.println("Digite a data da fatura (Formato: DD-MM-AAAA): ");
+        String data = scanner.nextLine();
+
+        System.out.println("--- Selecionar Cliente ---");
+        listar_clientes();
+        System.out.println("Digite o NIF do cliente: ");
+        int nif = scanner.nextInt();
+        scanner.nextLine();
+
+        Cliente cliente = null;
+        for (Cliente c : clientes) {
+            if (c.getNumeroContribuinte() == nif) {
+                cliente = c;
+                break;
+            }
+        }
+        if(cliente == null){
+            System.out.println("Cliente não encontrado!");
+            return;
+        }
+
+        Fatura fatura = new Fatura(numeroFatura,cliente,data);
+
+        // Adicionar produtos à fatura
+        while(true){
+            System.out.println("Adicionar produto à fatura? (1 - Sim, 0 - Não): ");
+            int escolha = scanner.nextInt();
+            scanner.nextLine(); // Limpar buffer
+            if (escolha == 0) break;
+
+            System.out.println("Digite o código do produto: ");
+            String codigo = scanner.nextLine();
+
+            System.out.println("Digite o nome do produto: ");
+            String nome = scanner.nextLine();
+
+            System.out.println("Digite a descrição do produto: ");
+            String descricao = scanner.nextLine();
+
+            System.out.println("Digite a quantidade: ");
+            int quantidade = scanner.nextInt();
+            scanner.nextLine();
+
+            System.out.println("Digite o valor unitário (sem IVA): ");
+            double valorUnitario = scanner.nextDouble();
+            scanner.nextLine();
+
+            System.out.println("É um produto alimentar ou de farmácia? (1 - Alimentar, 2 - Farmácia): ");
+            int tipoProduto = scanner.nextInt();
+            scanner.nextLine();
+
+            Produto produto = null;
+            if(tipoProduto == 1) {
+                System.out.println("Digite o tipo de taxa (1 - Reduzida, 2 - Intermédia, 3 - Normal)");
+                int tipoTaxa = scanner.nextInt();
+                scanner.nextLine();
+
+                Produtoalimentar.TipoTaxa taxa = switch (tipoTaxa) {
+                    case 1 -> Produtoalimentar.TipoTaxa.REDUDIZDA;
+                    case 2 -> Produtoalimentar.TipoTaxa.INTERMEDIA;
+                    case 3 -> Produtoalimentar.TipoTaxa.NORMAL;
+                    default -> throw new IllegalArgumentException("Tipo de taxa inválido.");
+                };
+
+                System.out.println("É um produto biológico? (1- Sim, 0 - Não): ");
+                boolean isBiologico = scanner.nextInt() == 1;
+                scanner.nextLine();
+
+                produto = new Produtoalimentar(codigo, nome, descricao, quantidade, valorUnitario, taxa, isBiologico,
+                        new ArrayList<>(), null);
+            } else if(tipoProduto == 2){
+                System.out.println("É um produto com prescrição? (1- Sim,0 - Não): ");
+                boolean comPrescricao = scanner.nextInt() == 1;
+                scanner.nextLine();
+
+                Produtofarmacia.Prescricao prescricao = comPrescricao
+                        ? Produtofarmacia.Prescricao.ComPrescricao
+                        : Produtofarmacia.Prescricao.Normais;
+                System.out.println("Selecione a categoria (1 - Beleza, 2 - Bem-estar, 3 - Bebês, 4 - Animais, 5 - Outro): ");
+                int categoriaOpcao = scanner.nextInt();
+                scanner.nextLine();
+
+
+                Produtofarmacia.CategoriaF categoriaf = switch (categoriaOpcao) {
+                    case 1 -> Produtofarmacia.CategoriaF.beleza;
+                    case 2 -> Produtofarmacia.CategoriaF.bem_estar;
+                    case 3 -> Produtofarmacia.CategoriaF.bebes;
+                    case 4 -> Produtofarmacia.CategoriaF.animais;
+                    case 5 -> Produtofarmacia.CategoriaF.outro;
+                    default -> throw new IllegalArgumentException("Categoria inválida.");
+                };
+
+                produto = new Produtofarmacia(codigo, nome, descricao, quantidade, valorUnitario, prescricao, categoriaf,null);
+            }
+            fatura.adicionarProduto(produto);
+        }
+        faturas.add(fatura);
+        System.out.println("Fatura criada com sucesso!");
+    }
+
+    private static void editar_fatura(Scanner scanner){
+        System.out.println("--- Editar Fatura ---");
+        System.out.println("Digite o número da fatura a ser editada: ");
+        int numeroFatura = scanner.nextInt();
+        scanner.nextLine();
+
+        Fatura fatura = null;
+        for (Fatura f : faturas) {
+            if (f.getNumero() == numeroFatura) {
+                fatura = f;
+                break;
+            }
+        }
+
+        if (fatura == null) {
+            System.out.println("Fatura não encontrada!");
+            return;
+        }
+
+        System.out.println("Editar data da fatura (atual: " + fatura.getData() + "): ");
+        String novaData = scanner.nextLine();
+        if(!novaData.isBlank()){
+            fatura.setData(novaData);
+        }
+
+        System.out.println("Adicionar produto à fatura? (1 - Sim, 0 - Não): ");
+        int escolha = scanner.nextInt();
+        scanner.nextLine();
+        if(escolha == 1){
+            criar_faturas(scanner);
+        }
+        System.out.println("Fatura atualizada com sucesso!");
+    }
+
+    private static void listarFaturas() {
+        if (faturas.isEmpty()) {
+            System.out.println("Nenhuma fatura cadastrada.");
+            return;
+        }
+
+        for (Fatura fatura : faturas) {
+            System.out.println(fatura);
         }
     }
 }

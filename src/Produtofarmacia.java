@@ -1,4 +1,4 @@
-public abstract class Produtofarmacia extends Produto {
+public class Produtofarmacia extends Produto {
     public enum Prescricao{
         ComPrescricao,
         Normais

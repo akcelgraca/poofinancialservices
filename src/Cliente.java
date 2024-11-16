@@ -55,5 +55,6 @@ public abstract class Cliente {
                 "NIF: " + numeroContribuinte + "\n" +
                 "Localizacao: " + localizacao + "\n";
     }
+
 }
 

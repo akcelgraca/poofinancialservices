@@ -1,5 +1,5 @@
 import java.util.ArrayList;
-public abstract class Produtoalimentar extends Produto {
+public class Produtoalimentar extends Produto {
     private boolean isBiologico;
     private TipoTaxa tipoTaxa;
     private ArrayList<String> certificacoes;
