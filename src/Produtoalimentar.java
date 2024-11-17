@@ -21,6 +21,7 @@ public class Produtoalimentar extends Produto {
         super(codigo,nome,descricao,quantidade,valorUnitario);
         this.isBiologico = isBiologico;
         this.tipoTaxa = tipoTaxa;
+        this.certificacoes = certificacoes;
         this.categoria = categoria;
         this.certificacoes = new ArrayList<>();
         this.certificacoes.add("ISO22000");
@@ -63,6 +64,10 @@ public class Produtoalimentar extends Produto {
     }
 
 
+    @Override
+    public double calcularIVA() {
+        return 0;
+    }
 
     @Override
     public double calcularIVA(Cliente.Localizacao localizacao) {
@@ -101,16 +106,22 @@ public class Produtoalimentar extends Produto {
                 break;
         }
 
-        double imposto = super.calcularValorTotalSemIVA() * taxa;
         if(isBiologico){
-            imposto *= 0.90;
+            taxa *= 0.90;
         }
-        return imposto;
+
+        double iva = calcularValorTotalSemIVA() * taxa;
+        return arredondar(iva);
+
+    }
+
+    private double arredondar(double valor) {
+        return Math.round(valor * 100.0) / 100.0; // Arredondar para 2 casas decimais
     }
 
     @Override
     public String toString() {
-        return "Produtoalimentar{" +
+        return
                 "codigo='" + getCodigo() + '\'' +
                 ", nome='" + getNome() + '\'' +
                 ", descricao='" + getDescricao() + '\'' +
@@ -119,7 +130,6 @@ public class Produtoalimentar extends Produto {
                 ", tipoTaxa=" + tipoTaxa +
                 ", categoria=" + (categoria != null ? categoria : "N/A") +
                 ", isBiologico=" + isBiologico +
-                ", certificacoes=" + (certificacoes != null ? certificacoes : "N/A") +
-                '}';
+                ", certificacoes=" + (certificacoes != null ? certificacoes : "N/A");
     }
 }

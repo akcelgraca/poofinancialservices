@@ -16,6 +16,7 @@ public class Main {
             System.out.println("4. Criar Fatura");
             System.out.println("5. Editar Fatura");
             System.out.println("6. Listar Faturas");
+            System.out.println("7. Visualizar Faturas");
             System.out.println("0. Sair");
             System.out.print("Escolha uma opção: ");
             opcao = scanner.nextInt();
@@ -28,6 +29,7 @@ public class Main {
                 case 4 -> criar_faturas(scanner);
                 case 5 -> editar_fatura(scanner);
                 case 6 -> listarFaturas();
+                case 7 -> visualizarFatura(scanner);
                 case 0 -> System.out.println("A sair...");
                 default -> System.out.println("Opção inválida.");
             }
@@ -156,6 +158,7 @@ public class Main {
             System.out.println("Digite a descrição do produto: ");
             String descricao = scanner.nextLine();
 
+
             System.out.println("Digite a quantidade: ");
             int quantidade = scanner.nextInt();
             scanner.nextLine();
@@ -181,12 +184,37 @@ public class Main {
                     default -> throw new IllegalArgumentException("Tipo de taxa inválido.");
                 };
 
+                ArrayList<String> certificacoes = new ArrayList<>();
+                if (tipoTaxa == 1) {
+                    // Apenas em caso de taxa reduzida, você deve adicionar as certificações.
+                    certificacoes.add("ISO22000");
+                    certificacoes.add("FSSC22000");
+                    certificacoes.add("HACCP");
+                    certificacoes.add("GMP");
+                } else {
+                    certificacoes.add(null);
+                }
+
                 System.out.println("É um produto biológico? (1- Sim, 0 - Não): ");
                 boolean isBiologico = scanner.nextInt() == 1;
                 scanner.nextLine();
 
-                produto = new Produtoalimentar(codigo, nome, descricao, quantidade, valorUnitario, taxa, isBiologico,
-                        new ArrayList<>(), null);
+                int categoriaOpcao = 0;
+                if (tipoTaxa == 2) {
+                    System.out.println("Digite a categoria do produto (1 - Congelados, 2 - Enlatados, 3 - Vinho): ");
+                    categoriaOpcao = scanner.nextInt();
+                    scanner.nextLine();
+                }
+
+                Produtoalimentar.Categoria categoria = switch (categoriaOpcao) {
+                    case 1 -> Produtoalimentar.Categoria.CONGELADOS;
+                    case 2 -> Produtoalimentar.Categoria.ENLATADOS;
+                    case 3 -> Produtoalimentar.Categoria.VINHO;
+                    default -> throw new IllegalArgumentException("Categoria inválida.");
+                };
+
+
+                produto = new Produtoalimentar(codigo, nome, descricao, quantidade, valorUnitario, taxa, isBiologico,certificacoes, categoria);
             } else if(tipoProduto == 2){
                 System.out.println("É um produto com prescrição? (1- Sim,0 - Não): ");
                 boolean comPrescricao = scanner.nextInt() == 1;
@@ -208,8 +236,15 @@ public class Main {
                     case 5 -> Produtofarmacia.CategoriaF.outro;
                     default -> throw new IllegalArgumentException("Categoria inválida.");
                 };
+                String medico = null;
+                if (comPrescricao) {
+                    System.out.println("Digite o nome do médico que prescreveu o medicamento: ");
+                    medico = scanner.nextLine();
+                } else {
 
-                produto = new Produtofarmacia(codigo, nome, descricao, quantidade, valorUnitario, prescricao, categoriaf,null);
+                }
+
+                produto = new Produtofarmacia(codigo, nome, descricao, quantidade, valorUnitario, prescricao, categoriaf,medico);
             }
             fatura.adicionarProduto(produto);
         }
@@ -260,5 +295,42 @@ public class Main {
         for (Fatura fatura : faturas) {
             System.out.println(fatura);
         }
+    }
+
+    private static double arredondar(double valor) {
+        return Math.round(valor * 100.0) / 100.0; // Arredondar para 2 casas decimais
+    }
+
+    private static void visualizarFatura(Scanner scanner) {
+        System.out.println("Digite o número da fatura para visualizar: ");
+        int numeroFatura = scanner.nextInt();
+        scanner.nextLine();
+
+        Fatura fatura = null;
+        for (Fatura f : faturas) {
+            if (f.getNumero() == numeroFatura) {
+                fatura = f;
+                break;
+            }
+        }
+
+        if (fatura == null) {
+            System.out.println("Fatura não encontrada!");
+            return;
+        }
+
+        System.out.println("Fatura Nº " + fatura.getNumero());
+        System.out.println("Cliente: " + fatura.getCliente().getNome());
+        System.out.println("Data: " + fatura.getData());
+        System.out.println("--- Produtos ---");
+        for (Produto produto : fatura.getProdutos()) {
+            System.out.println(produto);
+            System.out.println("Total sem IVA: " + produto.calcularValorTotalSemIVA());
+            System.out.println("IVA: " + produto.calcularIVA(fatura.getCliente().getLocalizacao()));
+            System.out.println("Total com IVA: " + produto.calcularValorTotalComIVA(fatura.getCliente().getLocalizacao()));
+        }
+        System.out.println("Total Geral sem IVA: " + arredondar(fatura.calcularTotalSemIVA()));
+        System.out.println("Total IVA: " + arredondar(fatura.calcularTotalIVA()));
+        System.out.println("Total Geral com IVA: " + arredondar(fatura.calcularTotalComIVA()));
     }
 }

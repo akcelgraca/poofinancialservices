@@ -45,6 +45,17 @@ public class Produtofarmacia extends Produto {
         this.medico = medico;
     }
 
+    // Implementando o método abstrato da classe Produto
+    @Override
+    public double calcularValorTotalSemIVA() {
+        return getQuantidade() * getValorUnitario();
+    }
+
+    @Override
+    public double calcularIVA() {
+        return 0;
+    }
+
     @Override
     public double calcularIVA(Cliente.Localizacao localizacao) {
         double taxa = 0.0;
@@ -65,12 +76,18 @@ public class Produtofarmacia extends Produto {
                 }
                 break;
         }
-        return calcularValorTotalSemIVA() * taxa;
+        double iva = calcularValorTotalSemIVA() * taxa;
+        return arredondar(iva);
     }
+
+    private double arredondar(double valor) {
+        return Math.round(valor * 100.0) / 100.0; // Arredondar para 2 casas decimais
+    }
+
     // Método toString
     @Override
     public String toString() {
-        return "Produtofarmacia{" +
+        return
                 "codigo='" + getCodigo() + '\'' +
                 ", nome='" + getNome() + '\'' +
                 ", descricao='" + getDescricao() + '\'' +
@@ -78,8 +95,7 @@ public class Produtofarmacia extends Produto {
                 ", valorUnitario=" + getValorUnitario() +
                 ", prescricao=" + prescricao +
                 ", categoriaf=" + categoriaf +
-                (prescricao == Prescricao.ComPrescricao ? ", medico='" + medico + '\'' : "") +
-                '}';
+                (prescricao == Prescricao.ComPrescricao ? ", medico='" + medico + '\'' : "");
     }
 }
 

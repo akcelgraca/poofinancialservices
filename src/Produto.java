@@ -58,17 +58,18 @@ public abstract class Produto {
         this.valorUnitario = valorUnitario;
     }
 
-    // Métodos genéricos
+
     public double calcularValorTotalSemIVA() {
         return quantidade * valorUnitario;
     }
 
-    // Método abstrato para calcular o IVA
-    public abstract double calcularIVA();
-
-    public double calcularValorTotalComIVA() {
-        return calcularValorTotalSemIVA() + calcularIVA();
+    public double calcularValorTotalComIVA(Cliente.Localizacao localizacao) {
+        return calcularValorTotalSemIVA() + calcularIVA(localizacao);
     }
+
+
+
+    public abstract double calcularIVA();
 
     public abstract double calcularIVA(Cliente.Localizacao localizacao);
 
@@ -82,5 +83,9 @@ public abstract class Produto {
                 ", quantidade=" + quantidade +
                 ", valorUnitario=" + valorUnitario +
                 '}';
+    }
+
+    public double calcularValorTotalComIVA() {
+        return 0;
     }
 }
