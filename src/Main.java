@@ -23,11 +23,11 @@ public class Main {
             scanner.nextLine();
 
             switch (opcao) {
-                case 1 -> criar_cliente(scanner);
-                case 2 -> editar_clientes(scanner);
-                case 3 -> listar_clientes();
-                case 4 -> criar_faturas(scanner);
-                case 5 -> editar_fatura(scanner);
+                case 1 -> criarCliente(scanner);
+                case 2 -> editarClientes(scanner);
+                case 3 -> listarClientes();
+                case 4 -> criarFaturas(scanner);
+                case 5 -> editarFatura(scanner);
                 case 6 -> listarFaturas();
                 case 7 -> visualizarFatura(scanner);
                 case 0 -> System.out.println("A sair...");
@@ -36,7 +36,7 @@ public class Main {
         } while (opcao != 0);
     }
 
-    private static void criar_cliente(Scanner scanner){
+    private static void criarCliente(Scanner scanner){
         System.out.print("Nome do cliente: ");
         String nome = scanner.nextLine();
 
@@ -66,7 +66,7 @@ public class Main {
         System.out.println("Cliente criado com sucesso!");
     }
 
-    private static void editar_clientes(Scanner scanner){
+    private static void editarClientes(Scanner scanner){
         System.out.print("Digite o NIF do cliente: ");
         int nif = scanner.nextInt();
         scanner.nextLine();
@@ -103,7 +103,7 @@ public class Main {
         System.out.println("Cliente atualizado com sucesso!");
     }
 
-    private static void listar_clientes(){
+    private static void listarClientes(){
         if (clientes.size() == 0) {
             System.out.println("Nenhum cliente cadastrado");
             return;
@@ -114,7 +114,7 @@ public class Main {
         }
     }
 
-    private static void criar_faturas(Scanner scanner){
+    private static void criarFaturas(Scanner scanner){
         System.out.println("Digite o número da  fatura: ");
         int numeroFatura = scanner.nextInt();
         scanner.nextLine();
@@ -123,7 +123,7 @@ public class Main {
         String data = scanner.nextLine();
 
         System.out.println("--- Selecionar Cliente ---");
-        listar_clientes();
+        listar_clientelistarClientes();
         System.out.println("Digite o NIF do cliente: ");
         int nif = scanner.nextInt();
         scanner.nextLine();
@@ -250,7 +250,7 @@ public class Main {
         System.out.println("Fatura criada com sucesso!");
     }
 
-    private static void editar_fatura(Scanner scanner){
+    private static void editarFatura(Scanner scanner){
         System.out.println("--- Editar Fatura ---");
         System.out.println("Digite o número da fatura a ser editada: ");
         int numeroFatura = scanner.nextInt();
@@ -275,11 +275,21 @@ public class Main {
             fatura.setData(novaData);
         }
 
+
+
         System.out.println("Adicionar produto à fatura? (1 - Sim, 0 - Não): ");
         int escolha = scanner.nextInt();
         scanner.nextLine();
         if(escolha == 1){
-            criar_faturas(scanner);
+            criarFaturas(scanner);
+        }
+        System.out.println("Fatura atualizada com sucesso!");
+
+        System.out.println("Remover Produto da fatura? (1 - Sim, 0 - Não): ");
+        int re = scanner.nextInt();
+        scanner.nextLine();
+        if(re == 1){
+            fatura.removerProduto();
         }
         System.out.println("Fatura atualizada com sucesso!");
     }
