@@ -1,8 +1,11 @@
 import java.util.ArrayList;
+import java.util.List;
+
 public class ProdutoAlimentar extends Produto {
     private boolean isBiologico;
     private TipoTaxa tipoTaxa;
     private ArrayList<String> certificacoes;
+    public static final List<String> CertificacaoValida = List.of("ISO22000","FSSC22000","HACCP", "GMP");
     private Categoria categoria;
 
     public enum TipoTaxa{
@@ -23,7 +26,18 @@ public class ProdutoAlimentar extends Produto {
         this.isBiologico = isBiologico;
         this.tipoTaxa = tipoTaxa;
         this.categoria = categoria;
-        this.certificacoes = certificacoes;
+        if(tipoTaxa == TipoTaxa.REDUDIZDA){
+            if(certificacoes == null || certificacoes.isEmpty() || certificacoes.size() > 4){
+                throw new IllegalArgumentException("Deve haver 1 à 4 certificações");
+            }
+            for (String certificacao : certificacoes){
+                if(!CertificacaoValida.contains(certificacao)){
+                    throw new IllegalArgumentException("Certificação Inválida: " + certificacao);
+                }
+            }
+
+        }
+        this.certificacoes = certificacoes != null ? certificacoes : new ArrayList<>();
     }
 
     // Getters e Setters

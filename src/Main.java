@@ -10,15 +10,15 @@ public class Main {
 
         do {
             System.out.println("\n--- Menu de Gestão ---");
-            System.out.println("1. Criar Cliente");
-            System.out.println("2. Editar Cliente");
-            System.out.println("3. Listar Clientes");
-            System.out.println("4. Criar Fatura");
-            System.out.println("5. Editar Fatura");
-            System.out.println("6. Listar Faturas");
-            System.out.println("7. Visualizar Faturas");
-            System.out.println("0. Sair");
-            System.out.print("Escolha uma opção: ");
+            System.out.println("1. CRIAR CLIENTE");
+            System.out.println("2. EDITAR CLIENTES");
+            System.out.println("3. LISTAR CLIENTES");
+            System.out.println("4. CRIAR FATURA");
+            System.out.println("5. EDITAR FATURA");
+            System.out.println("6. LISTAR FATURAS");
+            System.out.println("7. VISUALIZAR FATURAS");
+            System.out.println("0. SAIR\n");
+            System.out.print("ESCOLHA UMA OPÇÃO: ");
             opcao = scanner.nextInt();
             scanner.nextLine();
 
@@ -123,7 +123,7 @@ public class Main {
         String data = scanner.nextLine();
 
         System.out.println("--- Selecionar Cliente ---");
-        listar_clientelistarClientes();
+        listarClientes();
         System.out.println("Digite o NIF do cliente: ");
         int nif = scanner.nextInt();
         scanner.nextLine();
@@ -186,11 +186,26 @@ public class Main {
 
                 ArrayList<String> certificacoes = new ArrayList<>();
                 if (tipoTaxa == 1) {
-                    // Apenas em caso de taxa reduzida, você deve adicionar as certificações.
-                    System.out.println("Digite as certificações do produto: (ISO22000, FSSC22000,HACCP,GMP)");
+                    System.out.println("Digite a certificação do produto: (ISO22000,FSSC22000,HACCP,GMP): ");
+                    System.out.println("'fim' para encerrar.");
+                            while(certificacoes.size() < 4){
+                                System.out.print("Certificação " + (certificacoes.size() + 1) + ": ");
+                                String certificacao = scanner.nextLine();
 
-                } else {
-                    certificacoes.add(null);
+                                if(certificacao.equalsIgnoreCase("fim")){
+                                    break;
+                                }
+                                if(ProdutoAlimentar.CertificacaoValida.contains(certificacao)){
+                                    certificacoes.add(certificacao);
+                                }else{
+                                    System.out.println("Certificação inválida! Escolha entre: ISO22000, FSSC22000, HACCP, GMP.");
+                                }
+
+                            }
+                            if(certificacoes.isEmpty()){
+                                System.out.println("Erro: Produtos de taxa reduzida devem ter pelo menos uma certificação.");
+                            }
+
                 }
 
                 System.out.println("É um produto biológico? (1- Sim, 0 - Não): ");
@@ -289,7 +304,7 @@ public class Main {
         int re = scanner.nextInt();
         scanner.nextLine();
         if(re == 1){
-            fatura.removerProduto();
+            faturas.remove(fatura);
         }
         System.out.println("Fatura atualizada com sucesso!");
     }
