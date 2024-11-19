@@ -1,5 +1,5 @@
 import java.util.ArrayList;
-public class Produtoalimentar extends Produto {
+public class ProdutoAlimentar extends Produto {
     private boolean isBiologico;
     private TipoTaxa tipoTaxa;
     private ArrayList<String> certificacoes;
@@ -17,17 +17,13 @@ public class Produtoalimentar extends Produto {
         VINHO
     }
 
-    public Produtoalimentar(String codigo, String nome, String descricao,int quantidade,double valorUnitario,TipoTaxa tipoTaxa,boolean isBiologico, ArrayList<String> certificacoes,Categoria categoria){
+
+    public ProdutoAlimentar(String codigo, String nome, String descricao,int quantidade,double valorUnitario,TipoTaxa tipoTaxa,boolean isBiologico, ArrayList<String> certificacoes,Categoria categoria){
         super(codigo,nome,descricao,quantidade,valorUnitario);
         this.isBiologico = isBiologico;
         this.tipoTaxa = tipoTaxa;
-        this.certificacoes = certificacoes;
         this.categoria = categoria;
-        this.certificacoes = new ArrayList<>();
-        this.certificacoes.add("ISO22000");
-        this.certificacoes.add("FSSC22000");
-        this.certificacoes.add("HACCP");
-        this.certificacoes.add("GMP");
+        this.certificacoes = certificacoes;
     }
 
     // Getters e Setters
@@ -63,11 +59,6 @@ public class Produtoalimentar extends Produto {
         this.isBiologico = isBiologico;
     }
 
-
-    @Override
-    public double calcularIVA() {
-        return 0;
-    }
 
     @Override
     public double calcularIVA(Cliente.Localizacao localizacao) {

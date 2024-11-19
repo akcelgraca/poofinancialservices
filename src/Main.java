@@ -177,20 +177,18 @@ public class Main {
                 int tipoTaxa = scanner.nextInt();
                 scanner.nextLine();
 
-                Produtoalimentar.TipoTaxa taxa = switch (tipoTaxa) {
-                    case 1 -> Produtoalimentar.TipoTaxa.REDUDIZDA;
-                    case 2 -> Produtoalimentar.TipoTaxa.INTERMEDIA;
-                    case 3 -> Produtoalimentar.TipoTaxa.NORMAL;
+                ProdutoAlimentar.TipoTaxa taxa = switch (tipoTaxa) {
+                    case 1 -> ProdutoAlimentar.TipoTaxa.REDUDIZDA;
+                    case 2 -> ProdutoAlimentar.TipoTaxa.INTERMEDIA;
+                    case 3 -> ProdutoAlimentar.TipoTaxa.NORMAL;
                     default -> throw new IllegalArgumentException("Tipo de taxa inválido.");
                 };
 
                 ArrayList<String> certificacoes = new ArrayList<>();
                 if (tipoTaxa == 1) {
                     // Apenas em caso de taxa reduzida, você deve adicionar as certificações.
-                    certificacoes.add("ISO22000");
-                    certificacoes.add("FSSC22000");
-                    certificacoes.add("HACCP");
-                    certificacoes.add("GMP");
+                    System.out.println("Digite as certificações do produto: (ISO22000, FSSC22000,HACCP,GMP)");
+
                 } else {
                     certificacoes.add(null);
                 }
@@ -206,34 +204,34 @@ public class Main {
                     scanner.nextLine();
                 }
 
-                Produtoalimentar.Categoria categoria = switch (categoriaOpcao) {
-                    case 1 -> Produtoalimentar.Categoria.CONGELADOS;
-                    case 2 -> Produtoalimentar.Categoria.ENLATADOS;
-                    case 3 -> Produtoalimentar.Categoria.VINHO;
+                ProdutoAlimentar.Categoria categoria = switch (categoriaOpcao) {
+                    case 1 -> ProdutoAlimentar.Categoria.CONGELADOS;
+                    case 2 -> ProdutoAlimentar.Categoria.ENLATADOS;
+                    case 3 -> ProdutoAlimentar.Categoria.VINHO;
                     default -> throw new IllegalArgumentException("Categoria inválida.");
                 };
 
 
-                produto = new Produtoalimentar(codigo, nome, descricao, quantidade, valorUnitario, taxa, isBiologico,certificacoes, categoria);
+                produto = new ProdutoAlimentar(codigo, nome, descricao, quantidade, valorUnitario, taxa, isBiologico,certificacoes, categoria);
             } else if(tipoProduto == 2){
                 System.out.println("É um produto com prescrição? (1- Sim,0 - Não): ");
                 boolean comPrescricao = scanner.nextInt() == 1;
                 scanner.nextLine();
 
-                Produtofarmacia.Prescricao prescricao = comPrescricao
-                        ? Produtofarmacia.Prescricao.ComPrescricao
-                        : Produtofarmacia.Prescricao.Normais;
+                ProdutoFarmacia.Prescricao prescricao = comPrescricao
+                        ? ProdutoFarmacia.Prescricao.ComPrescricao
+                        : ProdutoFarmacia.Prescricao.Normais;
                 System.out.println("Selecione a categoria (1 - Beleza, 2 - Bem-estar, 3 - Bebês, 4 - Animais, 5 - Outro): ");
                 int categoriaOpcao = scanner.nextInt();
                 scanner.nextLine();
 
 
-                Produtofarmacia.CategoriaF categoriaf = switch (categoriaOpcao) {
-                    case 1 -> Produtofarmacia.CategoriaF.beleza;
-                    case 2 -> Produtofarmacia.CategoriaF.bem_estar;
-                    case 3 -> Produtofarmacia.CategoriaF.bebes;
-                    case 4 -> Produtofarmacia.CategoriaF.animais;
-                    case 5 -> Produtofarmacia.CategoriaF.outro;
+                ProdutoFarmacia.CategoriaF categoriaf = switch (categoriaOpcao) {
+                    case 1 -> ProdutoFarmacia.CategoriaF.beleza;
+                    case 2 -> ProdutoFarmacia.CategoriaF.bem_estar;
+                    case 3 -> ProdutoFarmacia.CategoriaF.bebes;
+                    case 4 -> ProdutoFarmacia.CategoriaF.animais;
+                    case 5 -> ProdutoFarmacia.CategoriaF.outro;
                     default -> throw new IllegalArgumentException("Categoria inválida.");
                 };
                 String medico = null;
@@ -244,7 +242,7 @@ public class Main {
 
                 }
 
-                produto = new Produtofarmacia(codigo, nome, descricao, quantidade, valorUnitario, prescricao, categoriaf,medico);
+                produto = new ProdutoFarmacia(codigo, nome, descricao, quantidade, valorUnitario, prescricao, categoriaf,medico);
             }
             fatura.adicionarProduto(produto);
         }
@@ -320,17 +318,19 @@ public class Main {
         }
 
         System.out.println("Fatura Nº " + fatura.getNumero());
-        System.out.println("Cliente: " + fatura.getCliente().getNome());
+        System.out.println("Nome do Cliente: " + fatura.getCliente().getNome());
+        System.out.println("Localização do Cliente: " + fatura.getCliente().getLocalizacao());
+        System.out.println("NIF do Cliente: " + fatura.getCliente().getNumeroContribuinte());
         System.out.println("Data: " + fatura.getData());
-        System.out.println("--- Produtos ---");
+        System.out.println("\n--- Produtos ---");
         for (Produto produto : fatura.getProdutos()) {
             System.out.println(produto);
-            System.out.println("Total sem IVA: " + produto.calcularValorTotalSemIVA());
-            System.out.println("IVA: " + produto.calcularIVA(fatura.getCliente().getLocalizacao()));
-            System.out.println("Total com IVA: " + produto.calcularValorTotalComIVA(fatura.getCliente().getLocalizacao()));
+            System.out.println("Valor do produto sem IVA: " + produto.calcularValorTotalSemIVA());
+            System.out.println("IVA do produto: " + produto.calcularIVA(fatura.getCliente().getLocalizacao()));
+            System.out.println("Valor do produto com IVA: " + produto.calcularValorTotalComIVA(fatura.getCliente().getLocalizacao()));
         }
         System.out.println("Total Geral sem IVA: " + arredondar(fatura.calcularTotalSemIVA()));
-        System.out.println("Total IVA: " + arredondar(fatura.calcularTotalIVA()));
+        System.out.println("Total Geral do IVA: " + arredondar(fatura.calcularTotalIVA()));
         System.out.println("Total Geral com IVA: " + arredondar(fatura.calcularTotalComIVA()));
     }
 }

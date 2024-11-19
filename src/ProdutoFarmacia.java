@@ -1,4 +1,4 @@
-public class Produtofarmacia extends Produto {
+public class ProdutoFarmacia extends Produto {
     public enum Prescricao{
         ComPrescricao,
         Normais
@@ -14,7 +14,7 @@ public class Produtofarmacia extends Produto {
     private Prescricao prescricao;
     private CategoriaF categoriaf;
     private String medico;
-    public Produtofarmacia(String codigo, String nome, String descricao,int quantidade,double valorUnitario,Prescricao prescricao, CategoriaF categoriaf, String medico){
+    public ProdutoFarmacia(String codigo, String nome, String descricao,int quantidade,double valorUnitario,Prescricao prescricao, CategoriaF categoriaf, String medico){
         super(codigo,nome,descricao,quantidade,valorUnitario);
         this.prescricao = prescricao;
         this.categoriaf = categoriaf;
@@ -49,11 +49,6 @@ public class Produtofarmacia extends Produto {
     @Override
     public double calcularValorTotalSemIVA() {
         return getQuantidade() * getValorUnitario();
-    }
-
-    @Override
-    public double calcularIVA() {
-        return 0;
     }
 
     @Override

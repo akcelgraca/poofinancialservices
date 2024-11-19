@@ -47,6 +47,9 @@ public abstract class Produto {
     }
 
     public void setQuantidade(int quantidade) {
+        if (quantidade < 0) {
+            throw new IllegalArgumentException("Quantidade não pode ser negativa.");
+        }
         this.quantidade = quantidade;
     }
 
@@ -55,6 +58,9 @@ public abstract class Produto {
     }
 
     public void setValorUnitario(double valorUnitario) {
+        if (valorUnitario < 0) {
+            throw new IllegalArgumentException("Valor unitário não pode ser negativo.");
+        }
         this.valorUnitario = valorUnitario;
     }
 
@@ -69,23 +75,18 @@ public abstract class Produto {
 
 
 
-    public abstract double calcularIVA();
-
     public abstract double calcularIVA(Cliente.Localizacao localizacao);
 
     // Método toString
     @Override
     public String toString() {
-        return "Produto{" +
-                "codigo='" + codigo + '\'' +
-                ", nome='" + nome + '\'' +
-                ", descricao='" + descricao + '\'' +
-                ", quantidade=" + quantidade +
-                ", valorUnitario=" + valorUnitario +
-                '}';
+        return "Produto[" +
+                "codigo= " + codigo +
+                ", nome= " + nome +
+                ", descricao= " + descricao +
+                ", quantidade= " + quantidade +
+                ", valorUnitario= " + valorUnitario +
+                ']';
     }
 
-    public double calcularValorTotalComIVA() {
-        return 0;
-    }
 }

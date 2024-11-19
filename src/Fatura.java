@@ -7,6 +7,7 @@ public class Fatura {
     private String data;
     private ArrayList<Produto> produtos;
 
+
     //Construtor
     public Fatura(int numero,Cliente cliente, String data){
         this.numero = numero;
@@ -71,18 +72,30 @@ public class Fatura {
     public double calcularTotalComIVA() {
         double totalComIVA = 0.0;
         for (Produto produto : produtos) {
-            totalComIVA += produto.calcularValorTotalComIVA();
+            totalComIVA += produto.calcularValorTotalComIVA(cliente.getLocalizacao());
         }
         return totalComIVA;
+    }
+
+    public int QuantidadeTotalProdutos() {
+        int quantidadeTotal = 0;
+        for (Produto produto : produtos) {
+            quantidadeTotal += produto.getQuantidade();
+        }
+        return quantidadeTotal;
+    }
+
+    public int QuantidadeTotalFaturas(List<Fatura> faturas){
+        return faturas.size();
     }
 
     @Override
     public String toString() {
         String detalhes = "Fatura Nº " + numero + "\n";
         detalhes += "Cliente: " + cliente.getNome() + "\n";
-        detalhes += "Data: " + data + "\n";
-        detalhes += "Produtos:\n";
-
+        detalhes += "Localização: : " + cliente.getLocalizacao() + "\n";
+        detalhes += "Quantidade de produtos: " + QuantidadeTotalProdutos();
+        //detalhes += "Quantidade de faturas: " + QuantidadeTotalFaturas();
         for (Produto produto : produtos) {
             detalhes += produto.toString() + "\n";
         }
