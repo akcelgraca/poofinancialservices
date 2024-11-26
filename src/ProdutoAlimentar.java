@@ -127,14 +127,14 @@ public class ProdutoAlimentar extends Produto {
     @Override
     public String toString() {
         return
-                "codigo='" + getCodigo() + '\'' +
-                ", nome='" + getNome() + '\'' +
-                ", descricao='" + getDescricao() + '\'' +
-                ", quantidade=" + getQuantidade() +
-                ", valorUnitario=" + getValorUnitario() +
-                ", tipoTaxa=" + tipoTaxa +
-                ", categoria=" + (categoria != null ? categoria : "N/A") +
-                ", isBiologico=" + isBiologico +
-                ", certificacoes=" + (certificacoes != null ? certificacoes : "N/A");
+                "codigo= " + getCodigo() +
+                ", nome= " + getNome() +
+                ", descricao= " + getDescricao() +
+                ", quantidade= " + getQuantidade() +
+                ", valorUnitario= " + getValorUnitario() +
+                ", tipoTaxa= " + tipoTaxa +
+                ", categoria= " + (categoria != null ? categoria : "N/A") +
+                ", isBiologico= " + isBiologico +
+                ", certificacoes= " + (certificacoes != null ? certificacoes : "N/A");
     }
 }

@@ -80,12 +80,12 @@ public abstract class Produto {
     // Método toString
     @Override
     public String toString() {
-        return "Produto[" +
-                "codigo= " + codigo +
-                ", nome= " + nome +
-                ", descricao= " + descricao +
-                ", quantidade= " + quantidade +
-                ", valorUnitario= " + valorUnitario +
+        return "Produto [" +
+                "codigo: " + codigo +
+                ", nome: " + nome +
+                ", descricao: " + descricao +
+                ", quantidade: " + quantidade +
+                ", valorUnitario: " + valorUnitario +
                 ']';
     }
 

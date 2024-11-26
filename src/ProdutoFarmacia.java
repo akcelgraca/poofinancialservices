@@ -83,13 +83,13 @@ public class ProdutoFarmacia extends Produto {
     @Override
     public String toString() {
         return
-                "codigo='" + getCodigo() + '\'' +
-                ", nome='" + getNome() + '\'' +
-                ", descricao='" + getDescricao() + '\'' +
-                ", quantidade=" + getQuantidade() +
-                ", valorUnitario=" + getValorUnitario() +
-                ", prescricao=" + prescricao +
-                ", categoriaf=" + categoriaf +
+                "codigo= " + getCodigo() +
+                ", nome= " + getNome() +
+                ", descricao= " + getDescricao() +
+                ", quantidade= " + getQuantidade() +
+                ", valorUnitario= " + getValorUnitario() +
+                ", prescricao= " + prescricao +
+                ", categoriaf= " + categoriaf +
                 (prescricao == Prescricao.ComPrescricao ? ", medico='" + medico + '\'' : "");
     }
 }

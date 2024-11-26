@@ -14,8 +14,9 @@ public abstract class Cliente {
     // Construtor com parâmetros
     public Cliente(String nome, int numeroContribuinte, Localizacao localizacao) {
         this.nome = nome;
-        this.numeroContribuinte = numeroContribuinte;
         this.localizacao = localizacao;
+        this.numeroContribuinte = numeroContribuinte;
+
     }
 
     // Getters e Setters
