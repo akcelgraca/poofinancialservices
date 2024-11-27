@@ -8,7 +8,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 public class Main {
+
     public static void main(String[] args) {
+        Funcoes f = new Funcoes();
         Scanner scanner = new Scanner(System.in);
         int opcao;
 
@@ -27,13 +29,13 @@ public class Main {
             scanner.nextLine();
 
             switch (opcao) {
-                case 1 -> criarCliente(scanner);
-                case 2 -> editarClientes(scanner);
-                case 3 -> listarClientes();
-                case 4 -> criarFaturas(scanner);
-                case 5 -> editarFatura(scanner);
-                case 6 -> listarFaturas();
-                case 7 -> visualizarFatura(scanner);
+                case 1 -> f.criarCliente();
+                case 2 -> f.editarClientes();
+                case 3 -> f.listarClientes();
+                case 4 -> f.criarFaturas();
+                case 5 -> f.editarFatura();
+                case 6 -> f.listarFaturas();
+                case 7 -> f.visualizarFatura();
                 case 0 -> System.out.println("A sair...");
                 default -> System.out.println("Opção inválida.");
             }

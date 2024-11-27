@@ -85,8 +85,22 @@ public class Fatura {
         return quantidadeTotal;
     }
 
-    public int QuantidadeTotalFaturas(List<Fatura> faturas){
-        return faturas.size();
+
+    public String toStringComTodasFaturas(List<Fatura> todasAsFaturas) {
+        String detalhes = "Fatura Nº " + numero + "\n";
+        detalhes += "Cliente: " + cliente.getNome() + "\n";
+        detalhes += "Localização: : " + cliente.getLocalizacao() + "\n";
+        detalhes += "Quantidade de produtos: " + QuantidadeTotalProdutos();
+        detalhes += "Quantidade de faturas: " + todasAsFaturas.size() + "\n";
+        for (Produto produto : produtos) {
+            detalhes += produto.toString() + "\n";
+        }
+
+        detalhes += "Total sem IVA: " + calcularTotalSemIVA() + "\n";
+        detalhes += "Total IVA: " + calcularTotalIVA() + "\n";
+        detalhes += "Total com IVA: " + calcularTotalComIVA() + "\n";
+
+        return detalhes;
     }
 
     @Override
@@ -95,7 +109,7 @@ public class Fatura {
         detalhes += "Cliente: " + cliente.getNome() + "\n";
         detalhes += "Localização: : " + cliente.getLocalizacao() + "\n";
         detalhes += "Quantidade de produtos: " + QuantidadeTotalProdutos();
-        //detalhes += "Quantidade de faturas: " + QuantidadeTotalFaturas();
+
         for (Produto produto : produtos) {
             detalhes += produto.toString() + "\n";
         }
