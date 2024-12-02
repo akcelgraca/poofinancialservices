@@ -7,7 +7,6 @@ public class Fatura {
     private String data;
     private ArrayList<Produto> produtos;
 
-
     //Construtor
     public Fatura(int numero,Cliente cliente, String data){
         this.numero = numero;
@@ -44,6 +43,12 @@ public class Fatura {
     public ArrayList<Produto> getProdutos(){
         return produtos;
     }
+
+    public void setProdutos(ArrayList<Produto> produtos) {
+        this.produtos = produtos;
+    }
+
+
 
     public void adicionarProduto(Produto produto){
         this.produtos.add(produto);
@@ -85,12 +90,14 @@ public class Fatura {
         return quantidadeTotal;
     }
 
+    public double arredondar(double valor) {
+        return Math.round(valor * 100.0) / 100.0; // Arredondar para 2 casas decimais
+    }
 
     public String toStringComTodasFaturas(List<Fatura> todasAsFaturas) {
-        String detalhes = "Fatura Nº " + numero + "\n";
-        detalhes += "Cliente: " + cliente.getNome() + "\n";
+        String detalhes = "Fatura Nº " + numero + "\n" + ("Cliente: " + cliente.getNome() + "\n");
         detalhes += "Localização: : " + cliente.getLocalizacao() + "\n";
-        detalhes += "Quantidade de produtos: " + QuantidadeTotalProdutos();
+        detalhes += "Quantidade de produtos: " + QuantidadeTotalProdutos() + "\n";
         detalhes += "Quantidade de faturas: " + todasAsFaturas.size() + "\n";
         for (Produto produto : produtos) {
             detalhes += produto.toString() + "\n";
@@ -108,16 +115,13 @@ public class Fatura {
         String detalhes = "Fatura Nº " + numero + "\n";
         detalhes += "Cliente: " + cliente.getNome() + "\n";
         detalhes += "Localização: : " + cliente.getLocalizacao() + "\n";
-        detalhes += "Quantidade de produtos: " + QuantidadeTotalProdutos();
-
-        for (Produto produto : produtos) {
-            detalhes += produto.toString() + "\n";
-        }
-
-        detalhes += "Total sem IVA: " + calcularTotalSemIVA() + "\n";
-        detalhes += "Total IVA: " + calcularTotalIVA() + "\n";
-        detalhes += "Total com IVA: " + calcularTotalComIVA() + "\n";
+        detalhes += "Quantidade de produtos: " + QuantidadeTotalProdutos() + "\n";
+        detalhes += "Total sem IVA: " + arredondar(calcularTotalSemIVA()) + "\n";
+        detalhes += "Total IVA: " + arredondar(calcularTotalIVA()) + "\n";
+        detalhes += "Total com IVA: " + arredondar(calcularTotalComIVA()) + "\n";
 
         return detalhes;
     }
+
+
 }

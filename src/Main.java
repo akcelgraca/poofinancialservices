@@ -10,9 +10,11 @@ import java.text.SimpleDateFormat;
 public class Main {
 
     public static void main(String[] args) {
-        Funcoes f = new Funcoes();
+        Funcoes f;
+        f = new Funcoes();
         Scanner scanner = new Scanner(System.in);
-        int opcao;
+        String op;
+        int opcao = -1;
 
         do {
             System.out.println("\n--- Menu de Gestão ---");
@@ -24,21 +26,27 @@ public class Main {
             System.out.println("6. LISTAR FATURAS");
             System.out.println("7. VISUALIZAR FATURAS");
             System.out.println("0. SAIR\n");
-            System.out.print("ESCOLHA UMA OPÇÃO: ");
-            opcao = scanner.nextInt();
-            scanner.nextLine();
 
-            switch (opcao) {
-                case 1 -> f.criarCliente();
-                case 2 -> f.editarClientes();
-                case 3 -> f.listarClientes();
-                case 4 -> f.criarFaturas();
-                case 5 -> f.editarFatura();
-                case 6 -> f.listarFaturas();
-                case 7 -> f.visualizarFatura();
-                case 0 -> System.out.println("A sair...");
-                default -> System.out.println("Opção inválida.");
+            try {
+                System.out.print("ESCOLHA UMA OPÇÃO: ");
+                op = scanner.nextLine();
+                opcao = Integer.parseInt(op);
+
+                switch (opcao) {
+                    case 1 -> f.criarCliente();
+                    case 2 -> f.editarClientes();
+                    case 3 -> f.listarClientes();
+                    case 4 -> f.criarFaturas();
+                    case 5 -> f.editarFatura();
+                    case 6 -> f.listarFaturas();
+                    case 7 -> f.visualizarFatura();
+                    case 0 -> System.out.println("A sair...");
+                    default -> System.out.println("Opção inválida.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Entrada inválida! Por favor, insira um número.");
             }
         } while (opcao != 0);
     }
 }
+

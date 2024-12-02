@@ -73,6 +73,11 @@ public class ProdutoAlimentar extends Produto {
         this.isBiologico = isBiologico;
     }
 
+    @Override
+    public String getTipoProduto() {
+        return "ProdutoAlimentar";
+    }
+
 
     @Override
     public double calcularIVA(Cliente.Localizacao localizacao) {
@@ -125,16 +130,34 @@ public class ProdutoAlimentar extends Produto {
     }
 
     @Override
+    public String detalhesEspecificos() {
+        StringBuilder detalhes = new StringBuilder();
+        detalhes.append("Tipo: Produto Alimentar\n");
+        detalhes.append("Biológico: ").append(isBiologico() ? "Sim" : "Não").append("\n");
+        detalhes.append("Tipo de Taxa: ").append(getTipoTaxa()).append("\n");
+
+        if (getTipoTaxa() == TipoTaxa.INTERMEDIA) {
+            detalhes.append("Categoria: ").append(getCategoria()).append("\n");
+        }
+
+        if (getTipoTaxa() == TipoTaxa.REDUDIZDA) {
+            detalhes.append("Certificações: ").append(String.join(", ", getCertificacoes())).append("\n");
+        }
+
+        return detalhes.toString();
+    }
+
+    @Override
     public String toString() {
-        return
-                "codigo= " + getCodigo() +
-                ", nome= " + getNome() +
-                ", descricao= " + getDescricao() +
-                ", quantidade= " + getQuantidade() +
-                ", valorUnitario= " + getValorUnitario() +
-                ", tipoTaxa= " + tipoTaxa +
-                ", categoria= " + (categoria != null ? categoria : "N/A") +
-                ", isBiologico= " + isBiologico +
-                ", certificacoes= " + (certificacoes != null ? certificacoes : "N/A");
+        String s = " Código= " + getCodigo() + "\n" +
+                " Nome= " + getNome() + "\n" +
+                " Descrição= " + getDescricao() + "\n" +
+                " Quantidade= " + getQuantidade() + "\n" +
+                " Valor unitário= " + getValorUnitario() + "\n" +
+                " Tipo de taxa= " + tipoTaxa + "\n" +
+                " Categoria= " + (categoria != null ? categoria : "não possui categorias") + "\n" +
+                " Biológico= " + (isBiologico ? "Sim" : "Não") + "\n" +
+                " Certificações= " + (certificacoes != null ? certificacoes : "N/A") + "\n";
+        return s;
     }
 }

@@ -57,6 +57,8 @@ public abstract class Produto {
         return valorUnitario;
     }
 
+    public abstract String getTipoProduto();
+
     public void setValorUnitario(double valorUnitario) {
         if (valorUnitario < 0) {
             throw new IllegalArgumentException("Valor unitário não pode ser negativo.");
@@ -77,16 +79,17 @@ public abstract class Produto {
 
     public abstract double calcularIVA(Cliente.Localizacao localizacao);
 
+    public abstract String detalhesEspecificos();
+
     // Método toString
     @Override
     public String toString() {
-        return "Produto [" +
-                "codigo: " + codigo +
-                ", nome: " + nome +
-                ", descricao: " + descricao +
-                ", quantidade: " + quantidade +
-                ", valorUnitario: " + valorUnitario +
-                ']';
+        return "Código: " + codigo + "\n" +
+                "Nome: " + nome + "\n" +
+                "Descrição: " + descricao + "\n" +
+                "Quantidade: " + quantidade + "\n" +
+                "Valor Unitário (sem IVA): " + valorUnitario + "\n" +
+                detalhesEspecificos();
     }
 
 }

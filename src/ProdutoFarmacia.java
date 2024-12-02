@@ -11,6 +11,7 @@ public class ProdutoFarmacia extends Produto {
         animais,
         outro
     }
+
     private Prescricao prescricao;
     private CategoriaF categoriaf;
     private String medico;
@@ -79,18 +80,41 @@ public class ProdutoFarmacia extends Produto {
         return Math.round(valor * 100.0) / 100.0; // Arredondar para 2 casas decimais
     }
 
+    @Override
+    public String getTipoProduto() {
+        return "ProdutoFarmacia";
+    }
+
+    @Override
+    public String detalhesEspecificos() {
+        StringBuilder detalhes = new StringBuilder();
+        detalhes.append("Tipo: Produto Farmácia\n");
+        detalhes.append("Prescrição: ").append(prescricao == Prescricao.ComPrescricao ? "Sim" : "Não").append("\n");
+
+        if (prescricao == Prescricao.ComPrescricao) {
+            detalhes.append("Médico: ").append(getMedico()).append("\n");
+        } else {
+            detalhes.append("Categoria: ").append(getCategoriaf() != null ? getCategoriaf() : "Não tem categoria").append("\n");
+        }
+
+        return detalhes.toString();
+    }
+
     // Método toString
     @Override
     public String toString() {
+        String s = " Código= " + getCodigo() + "\n" +
+                " Nome= " + getNome() + "\n" +
+                " Descricao= " + getDescricao() + "\n" +
+                " Quantidade= " + getQuantidade() + "\n" +
+                " Valor unitário= " + getValorUnitario() + "\n" +
+                " Prescrição= " + (prescricao == Prescricao.ComPrescricao ? "Sim" : "Não") + "\n" +
+                (prescricao == Prescricao.ComPrescricao ? " Médico/a= " + medico + "\n" : "") +
+                (prescricao == Prescricao.Normais
+                        ? " Categoria= " + (categoriaf != null ? categoriaf : "não tem categoria") + "\n"
+                        : "");
         return
-                "codigo= " + getCodigo() +
-                ", nome= " + getNome() +
-                ", descricao= " + getDescricao() +
-                ", quantidade= " + getQuantidade() +
-                ", valorUnitario= " + getValorUnitario() +
-                ", prescricao= " + prescricao +
-                ", categoriaf= " + categoriaf +
-                (prescricao == Prescricao.ComPrescricao ? ", medico='" + medico + '\'' : "");
+                s;
     }
 }
 
