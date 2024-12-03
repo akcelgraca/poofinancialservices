@@ -15,6 +15,8 @@ public class Funcoes {
     Scanner scanner = new Scanner(System.in);
     File dados = new File("ficheiro.txt");
     File fat = new File("faturas.txt");
+    DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+    String date = dateFormat.format(new Date());
 
     public Funcoes() {
         clientes = new ArrayList<>();
@@ -22,133 +24,61 @@ public class Funcoes {
     }
 
     public void listarFaturas() {
-        List<Fatura> faturasDoFicheiro = carregarFaturasDoFicheiro();
+        if (fat.exists() && fat.isFile()) {
+            try (BufferedReader br = new BufferedReader(new FileReader(fat))) {
+                String linha;
+                boolean faturaIniciada = false;
 
-        if (faturasDoFicheiro.isEmpty()) {
-            System.out.println("Nenhuma fatura encontrada no ficheiro.");
-            return;
-        }
+                String numeroFatura = "";
+                String nomeCliente = "";
+                String nifCliente = "";
+                String localizacao = "";
+                int quantidadeProdutos = 0;
+                double subtotal = 0.0;
+                double subtotalIVA = 0.0;
 
-        System.out.println("Quantidade de faturas: " + faturasDoFicheiro.size() + "\n");
-
-        for (Fatura fatura : faturasDoFicheiro) {
-            System.out.println("Fatura Nº: " + fatura.getNumero());
-            System.out.println("Cliente: " + fatura.getCliente().getNome());
-            System.out.println("Localização do Cliente: " + fatura.getCliente().getLocalizacao());
-            System.out.println("Número de Produtos: " + fatura.getProdutos().size());
-            System.out.println("Total sem IVA: " + arredondar(fatura.calcularTotalSemIVA()));
-            System.out.println("Total com IVA: " + arredondar(fatura.calcularTotalComIVA()));
-            System.out.println("--------------------------------------------");
-        }
-    }
-
-    public List<Fatura> carregarFaturasDoFicheiro() {
-        List<Fatura> faturasDoFicheiro = new ArrayList<>();
-
-        if (!fat.exists()) {
-            System.out.println("O ficheiro faturas.txt não existe.");
-            return faturasDoFicheiro;
-        }
-
-        try (BufferedReader br = new BufferedReader(new FileReader(fat))) {
-            String linha;
-            Fatura fatura = null;
-            Cliente cliente = null;
-            List<Produto> produtos = new ArrayList<>();
-            String data = null;
-
-            while ((linha = br.readLine()) != null) {
-                if (linha.startsWith("Fatura Nº: ")) {
-                    // Criar nova fatura
-                    if (fatura != null && cliente != null) {
-                        fatura.setProdutos(new ArrayList<>(produtos)); // Adicionar produtos à fatura anterior
-                        faturasDoFicheiro.add(fatura); // Adicionar fatura à lista
-                    }
-
-                    // Inicializar nova fatura
-                    int numeroFatura = Integer.parseInt(linha.substring(10).trim());
-                    // Certifique-se de que o cliente está associado à fatura
-                    fatura = new Fatura(numeroFatura, cliente, data);  // Agora associamos a fatura ao cliente e à data
-                    produtos = new ArrayList<>(); // Reiniciar a lista de produtos
-                } else if (linha.startsWith("Data: ")) {
-                    data = linha.substring(6).trim(); // Ler a data
-                } else if (linha.startsWith("Cliente: ")) {
-                    String clienteInfo = linha.substring(9).trim();
-                    // Separar nome e NIF do cliente
-                    String[] parts = clienteInfo.split(" \\(NIF: ");
-                    String nome = parts[0];
-                    int nif = Integer.parseInt(parts[1].replace(")", "").trim());
-                    cliente = new Cliente(nome, nif, Cliente.Localizacao.PortugalContinental); // Ajuste conforme necessário
-                } else if (linha.startsWith("Produtos:")) {
-                    // Continuação da leitura dos produtos
-                    while ((linha = br.readLine()) != null && linha.startsWith("Codigo= ")) {
-                        String codigo = linha.substring(8).trim();
-                        String nomeProduto = br.readLine().substring(6).trim();
-                        String descricao = br.readLine().substring(12).trim();
-                        int quantidade = Integer.parseInt(br.readLine().substring(11).trim());
-                        double valorUnitario = Double.parseDouble(br.readLine().substring(18).trim());
-
-                        // Criar produto e adicionar à lista de produtos
-                        Produto produto = null;
-
-                        if (linha.contains("Tipo de taxa")) {  // Isso é para identificar que é um ProdutoAlimentar
-                            // Lê o tipo de taxa
-                            String tipoTaxaTexto = br.readLine().substring(14).trim();
-                            ProdutoAlimentar.TipoTaxa tipoTaxa = ProdutoAlimentar.TipoTaxa.valueOf(tipoTaxaTexto.toUpperCase());
-
-                            // Lê a categoria
-                            String categoriaTexto = br.readLine().substring(9).trim();
-                            ProdutoAlimentar.Categoria categoria = ProdutoAlimentar.Categoria.valueOf(categoriaTexto.toUpperCase());
-
-                            // Lê as certificações (caso existam)
-                            ArrayList<String> certificacoes = new ArrayList<>();
-                            String certificacaoTexto = br.readLine().substring(14).trim();
-                            if (!certificacaoTexto.equals("[]")) {
-                                String[] certificacoesArray = certificacaoTexto.replace("[", "").replace("]", "").split(", ");
-                                for (String cert : certificacoesArray) {
-                                    certificacoes.add(cert);
-                                }
-                            }
-
-                            // Instancia o ProdutoAlimentar
-                            boolean isBiologico = br.readLine().substring(11).trim().equals("Sim");
-                            produto = new ProdutoAlimentar(codigo, nomeProduto, descricao, quantidade, valorUnitario, tipoTaxa, isBiologico, certificacoes, categoria);
-                        } else {
-                            // Caso não seja ProdutoAlimentar, é um ProdutoFarmacia
-                            String prescricaoTexto = br.readLine().substring(12).trim();
-                            ProdutoFarmacia.Prescricao prescricao = ProdutoFarmacia.Prescricao.valueOf(prescricaoTexto.toUpperCase());
-
-                            // Lê a categoria de ProdutoFarmacia
-                            String categoriaFarmaciaTexto = br.readLine().substring(10).trim();
-                            ProdutoFarmacia.CategoriaF categoriaf = ProdutoFarmacia.CategoriaF.valueOf(categoriaFarmaciaTexto.toUpperCase());
-
-                            // Lê o médico (se necessário)
-                            String medico = null;
-                            if (prescricao == ProdutoFarmacia.Prescricao.ComPrescricao) {
-                                medico = br.readLine().substring(9).trim();
-                            }
-
-                            // Instancia o ProdutoFarmacia
-                            produto = new ProdutoFarmacia(codigo, nomeProduto, descricao, quantidade, valorUnitario, prescricao, categoriaf, medico);
+                while ((linha = br.readLine()) != null) {
+                    if (linha.startsWith("Fatura Nº: ")) {
+                        // Se já estiver processando uma fatura, exibe os detalhes acumulados
+                        if (faturaIniciada) {
+                            System.out.printf("Número: %s, Cliente: %s, NIF: %s, Localização: %s, Produtos: %d, SUBTOTAL: %.2f, SUBTOTAL IVA: %.2f",
+                                    numeroFatura, nomeCliente, nifCliente, localizacao, quantidadeProdutos, subtotal, subtotalIVA);
+                            // Reseta os valores para a próxima fatura
+                            quantidadeProdutos = 0;
+                            subtotal = 0.0;
+                            subtotalIVA = 0.0;
                         }
 
-                        // Adiciona o produto à lista
-                        produtos.add(produto);
+                        // Inicia uma nova fatura
+                        faturaIniciada = true;
+                        numeroFatura = linha.substring(10).trim();
+                    } else if (linha.startsWith("Nome do Cliente: ")) {
+                        nomeCliente = linha.substring(17).trim();
+                    } else if (linha.startsWith("NIF do Cliente: ")) {
+                        nifCliente = linha.substring(16).trim();
+                    } else if (linha.startsWith("Localização: ")) {
+                        localizacao = linha.substring(13).trim();
+                    } else if (linha.startsWith("SUBTOTAL: ")) {
+                        subtotal += Double.parseDouble(linha.substring(10).trim());
+                    } else if (linha.startsWith("SUBTOTAL IVA: ")) {
+                        subtotalIVA += Double.parseDouble(linha.substring(14).trim());
+                        quantidadeProdutos++; // Incrementa a quantidade de produtos
                     }
                 }
-            }
 
-            // Se uma fatura foi lida, adicionar à lista
-            if (fatura != null && cliente != null) {
-                fatura.setProdutos(new ArrayList<>(produtos));
-                faturasDoFicheiro.add(fatura); // Adicionar última fatura
-            }
+                // Exibe os detalhes da última fatura processada
+                if (faturaIniciada) {
 
-        } catch (IOException e) {
-            System.out.println("Erro ao carregar faturas do ficheiro");
+                    System.out.printf("Número: %s, Cliente: %s, NIF: %s, Localização: %s, Produtos: %d, SUBTOTAL: %.2f, SUBTOTAL IVA: %.2f",
+                            numeroFatura, nomeCliente, nifCliente, localizacao, quantidadeProdutos, subtotal, subtotalIVA);
+                }
+
+            } catch (IOException ex) {
+                System.out.println("Erro ao ler o ficheiro de texto: " + ex.getMessage());
+            }
+        } else {
+            System.out.println("Ficheiro não existe.");
         }
-
-        return faturasDoFicheiro;
     }
 
 
@@ -157,15 +87,10 @@ public class Funcoes {
 
 
 
-
-    public double arredondar(double valor) {
-        return Math.round(valor * 100.0) / 100.0; // Arredondar para 2 casas decimais
-    }
 
     public void visualizarFatura() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Digite o número da fatura para visualizar: ");
-
 
         int numeroFatura;
         try {
@@ -176,38 +101,50 @@ public class Funcoes {
             return;
         }
 
-        Fatura fatura = null;
-        for (Fatura f : faturas) {
-            if (f.getNumero() == numeroFatura) {
-                fatura = f;
-                break;
+        if (fat.exists() && fat.isFile()) {
+            try (FileReader fr = new FileReader(fat);
+                 BufferedReader br = new BufferedReader(fr)) {
+
+                String line;
+                boolean faturaEncontrada = false;
+                StringBuilder detalhesFatura = new StringBuilder();
+
+                while ((line = br.readLine()) != null) {
+                    if (line.startsWith("Fatura Nº: ")) {
+                        // Verifica se é a fatura desejada
+                        int numeroAtual = Integer.parseInt(line.substring(10).trim());
+                        if (numeroAtual == numeroFatura) {
+                            faturaEncontrada = true;
+                            detalhesFatura.append(line).append("\n"); // Adiciona ao buffer de detalhes
+                        } else if (faturaEncontrada) {
+                            // Se encontrou outra fatura, termina a leitura da desejada
+                            break;
+                        }
+                    } else if (faturaEncontrada) {
+                        detalhesFatura.append(line).append("\n"); // Continua acumulando detalhes
+                    }
+                }
+
+                if (faturaEncontrada) {
+                    System.out.println(detalhesFatura);
+                } else {
+                    System.out.println("Fatura não encontrada!");
+                }
+
+            } catch (FileNotFoundException ex) {
+                System.out.println("Erro ao abrir ficheiro de texto.");
+            } catch (IOException ex) {
+                System.out.println("Erro ao ler ficheiro de texto.");
             }
+        } else {
+            System.out.println("Ficheiro não existe.");
         }
+    }
 
-        if (fatura == null) {
-            System.out.println("Fatura não encontrada!");
-            return;
-        }
 
-        DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-        String date = dateFormat.format(new Date());
 
-        System.out.println("\nData: " + fatura.getData());
-        System.out.println("Hora: " + date);
-        System.out.println("Fatura: " + fatura.getNumero());
-        System.out.println("Nome do Cliente: " + fatura.getCliente().getNome());
-        System.out.println("Localização do Cliente: " + fatura.getCliente().getLocalizacao());
-        System.out.println("NIF do Cliente: " + fatura.getCliente().getNumeroContribuinte());
-        System.out.println("\n--- Produtos ---");
-        for (Produto produto : fatura.getProdutos()) {
-            System.out.println(produto);
-            System.out.println("SUBTOTAL: " + arredondar(produto.calcularValorTotalSemIVA()));
-            System.out.println("IVA : " + arredondar(produto.calcularIVA(fatura.getCliente().getLocalizacao())));
-            System.out.println("SUBTOTAL IVA: " + arredondar(produto.calcularValorTotalComIVA(fatura.getCliente().getLocalizacao())));
-        }
-        System.out.println("TOTAL FARURA SEM IVA: " + arredondar(fatura.calcularTotalSemIVA()));
-        System.out.println("TOTAL IVA: " + arredondar(fatura.calcularTotalIVA()));
-        System.out.println("TOTAL FARURA COM IVA: " + arredondar(fatura.calcularTotalComIVA()));
+    public double arredondar(double valor) {
+        return Math.round(valor * 100.0) / 100.0; // Arredondar para 2 casas decimais
     }
 
 
@@ -979,7 +916,11 @@ public class Funcoes {
             bw.newLine();
             bw.write("Data: " + fatura.getData());
             bw.newLine();
-            bw.write("Cliente: " + fatura.getCliente().getNome() + " (NIF: " + fatura.getCliente().getNumeroContribuinte() + ")");
+            bw.write("Hora: " + date);
+            bw.newLine();
+            bw.write("Nome do Cliente: " + fatura.getCliente().getNome());
+            bw.newLine();
+            bw.write("NIF do Cliente: " + fatura.getCliente().getNumeroContribuinte());
             bw.newLine();
             bw.write("Localização: " + fatura.getCliente().getLocalizacao());
             bw.newLine();
@@ -988,15 +929,20 @@ public class Funcoes {
             for (Produto produto : fatura.getProdutos()) {
                 bw.write(produto.toString());
                 bw.newLine();
+                bw.write("SUBTOTAL: " + arredondar(produto.calcularValorTotalSemIVA()));
+                bw.write("\nIVA : " + arredondar(produto.calcularIVA(fatura.getCliente().getLocalizacao())));
+                bw.write("\nSUBTOTAL IVA: " + arredondar(produto.calcularValorTotalComIVA(fatura.getCliente().getLocalizacao())) + "\n");
+
             }
-            bw.write("Total sem IVA: " + fatura.calcularTotalSemIVA());
+            bw.write("\nTOTAL FATURA SEM IVA: " + arredondar(fatura.calcularTotalSemIVA()));
             bw.newLine();
-            bw.write("Total IVA: " + fatura.calcularTotalIVA());
+            bw.write("Total IVA: " + arredondar(fatura.calcularTotalIVA()));
             bw.newLine();
-            bw.write("Total com IVA: " + fatura.calcularTotalComIVA());
+            bw.write("TOTAL FATURA COM IVA: " + arredondar(fatura.calcularTotalComIVA()));
             bw.newLine();
             bw.write("------------------------------------------");
             bw.newLine();
+            bw.close();
             System.out.println("Fatura salva no ficheiro faturas.txt com sucesso!");
         } catch (IOException e) {
             System.out.println("Erro ao salvar a fatura no ficheiro: " + e.getMessage());

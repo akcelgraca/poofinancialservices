@@ -30,7 +30,7 @@ public class Main {
             try {
                 System.out.print("ESCOLHA UMA OPÇÃO: ");
                 op = scanner.nextLine();
-                opcao = Integer.parseInt(op);
+                opcao = Integer.parseInt(op.trim());
 
                 switch (opcao) {
                     case 1 -> f.criarCliente();
