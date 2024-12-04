@@ -47,6 +47,7 @@ public class Funcoes {
                             quantidadeProdutos = 0;
                             subtotal = 0.0;
                             subtotalIVA = 0.0;
+                            System.out.printf("\n");
                         }
 
                         // Inicia uma nova fatura
@@ -80,12 +81,6 @@ public class Funcoes {
             System.out.println("Ficheiro não existe.");
         }
     }
-
-
-
-
-
-
 
 
     public void visualizarFatura() {
@@ -140,7 +135,6 @@ public class Funcoes {
             System.out.println("Ficheiro não existe.");
         }
     }
-
 
 
     public double arredondar(double valor) {
@@ -260,7 +254,7 @@ public class Funcoes {
         Cliente cliente = new Cliente(nome, nif, localizacao) {
         };
         clientes.add(cliente);
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(dados,true))){
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(dados, true))) {
             bw.write("NIF: " + nif);
             bw.newLine();
             bw.write("Nome: " + nome);
@@ -438,9 +432,6 @@ public class Funcoes {
     }
 
 
-
-
-
     public void listarClientes() {
         List<Cliente> clientesLidos = new ArrayList<>();
         if (!dados.exists()) {
@@ -451,6 +442,7 @@ public class Funcoes {
         try (BufferedReader br = new BufferedReader(new FileReader(dados))) {
             String linha;
             Cliente clienteAtual = null;
+
             while ((linha = br.readLine()) != null) {
                 // Interpretar os dados do ficheiro
                 if (linha.startsWith("NIF: ")) {
@@ -461,13 +453,26 @@ public class Funcoes {
                     clienteAtual.setNome(linha.substring(6).trim()); // Atualizar o nome
                 } else if (linha.startsWith("Localização: ") && clienteAtual != null) {
                     String localizacaoTexto = linha.substring(13).trim();
-                    Cliente.Localizacao localizacao = switch (localizacaoTexto) {
-                        case "Portugal Continental" -> Cliente.Localizacao.PortugalContinental;
-                        case "Madeira" -> Cliente.Localizacao.Madeira;
-                        case "Açores" -> Cliente.Localizacao.Açores;
-                        default -> null;
-                    };
-                    clienteAtual.setLocalizacao(localizacao); // Atualizar a localização
+                    Cliente.Localizacao localizacao = null;
+                    switch (localizacaoTexto) {
+                        case "Portugal Continental":
+                            localizacao = Cliente.Localizacao.PortugalContinental;
+                            break;
+                        case "Madeira":
+                            localizacao = Cliente.Localizacao.Madeira;
+                            break;
+                        case "Açores":
+                            localizacao = Cliente.Localizacao.Açores;
+                            break;
+                        default:
+                            System.out.println("Localização inválida encontrada: " + localizacaoTexto);
+                    }
+
+                    if (localizacao != null) {
+                        clienteAtual.setLocalizacao(localizacao); // Atualizar a localização
+                    } else {
+                        clienteAtual.setLocalizacao(Cliente.Localizacao.PortugalContinental); // Definir uma localização padrão
+                    }
                 }
             }
         } catch (IOException e) {
@@ -483,15 +488,18 @@ public class Funcoes {
         // Exibir os clientes lidos
         System.out.println("--- Lista de Clientes ---\n");
         for (Cliente cliente : clientesLidos) {
-            System.out.println(cliente);
+            if (cliente != null) {
+                System.out.println(cliente); // Aqui é necessário garantir que o método toString() da classe Cliente está bem implementado
+            }
         }
     }
+
 
     public List<Cliente> carregarClientesDoFicheiro() {
         List<Cliente> clientesDoFicheiro = new ArrayList<>();
 
         if (!dados.exists()) {
-            System.out.println("O ficheiro ficheiro.txt não existe.");
+            System.out.println("O ficheiro dados.txt não existe.");
             return clientesDoFicheiro;
         }
 
@@ -700,107 +708,158 @@ public class Funcoes {
             if (tipoProduto == 1) {
                 // Produto Alimentar
                 System.out.println("Digite o tipo de taxa (1 - Reduzida, 2 - Intermédia, 3 - Normal): ");
-                ProdutoAlimentar.TipoTaxa taxa;
+                String Biologico = null;
+                Intermedia.Categoria categoriaC = null;
+
                 while (true) {
                     try {
                         String tipoT = scanner.nextLine();
                         int tipoTaxa = Integer.parseInt(tipoT);
+                        switch (tipoTaxa) {
+                            case 1:
+                                // Taxa Reduzida
+                                ArrayList<String> certificacoes = new ArrayList<>();
+                                System.out.println("Digite as certificações do produto (ISO22000, FSSC22000, HACCP, GMP): ");
+                                System.out.println("'fim' para encerrar.");
 
-                        taxa = switch (tipoTaxa) {
-                            case 1 -> ProdutoAlimentar.TipoTaxa.REDUDIZDA;
-                            case 2 -> ProdutoAlimentar.TipoTaxa.INTERMEDIA;
-                            case 3 -> ProdutoAlimentar.TipoTaxa.NORMAL;
-                            default -> throw new IllegalArgumentException("Tipo de taxa inválido.");
-                        };
-                        break;
+                                while (true) {
+                                    try {
+                                        System.out.println("Digite as certificações do produto (ISO22000, FSSC22000, HACCP, GMP): ");
+                                        System.out.println("'fim' para encerrar.");
+
+                                        while (certificacoes.size() < 4) {
+                                            try {
+                                                System.out.print("Certificação " + (certificacoes.size() + 1) + ": ");
+                                                String certificacao = scanner.nextLine();
+
+                                                // Verifica se o usuário deseja encerrar
+                                                if (certificacao.equalsIgnoreCase("fim")) break;
+
+                                                // Valida a certificação
+                                                if (Reduzida.CertificacaoValida.contains(certificacao)) {
+                                                    certificacoes.add(certificacao);
+                                                } else {
+                                                    System.out.println("Certificação inválida! Escolha entre: ISO22000, FSSC22000, HACCP, GMP.");
+                                                }
+                                            } catch (Exception e) {
+                                                System.out.println("Erro inesperado. Tente novamente.");
+                                            }
+                                        }
+                                        break;
+                                    } catch (Exception e) {
+                                        System.out.println("Erro ao adicionar certificações.");
+                                    }
+                                }
+
+                                // Verificar se é biológico
+                                while (true) {
+                                    try{
+                                        System.out.print("É um produto biológico? (1 - Sim, 0 - Não): ");
+                                        String resB = scanner.nextLine();
+                                        int respostaB = Integer.parseInt(resB);
+
+                                        if (respostaB == 1) {
+                                            Biologico = "Sim";
+                                            break;
+                                        } else if (respostaB == 0) {
+                                            Biologico = "Nao";
+                                            break;
+                                        } else {
+                                            System.out.println("Opção inválida. Digite 1 para Sim ou 0 para Não.");
+                                        }
+                                    } catch (Exception e){
+                                        System.out.println("Entrada inválida. Por favor, digite 1 para Sim ou 0 para Não.");
+                                    }
+
+                                }
+                                produto = new Reduzida(codigo, nome, descricao, quantidade, valorUnitario, Biologico, certificacoes);
+                                break;
+
+                            case 2:
+                                // Taxa Intermediária
+                                System.out.println("Digite a categoria do produto (1 - Congelados, 2 - Enlatados, 3 - Vinho): ");
+                                while (true) {
+                                    try {
+                                        String categoriaOpc = scanner.nextLine();
+                                        int categoriaOpcaoA = Integer.parseInt(categoriaOpc);
+
+                                        categoriaC = switch (categoriaOpcaoA) {
+                                            case 1 -> Intermedia.Categoria.CONGELADOS;
+                                            case 2 -> Intermedia.Categoria.ENLATADOS;
+                                            case 3 -> Intermedia.Categoria.VINHO;
+                                            default -> throw new IllegalArgumentException("Categoria inválida.");
+                                        };
+                                    } catch (Exception e) {
+                                        System.out.println("Entrada inválida. Escolha entre 1 (Congelados), 2 (Enlatados) ou 3 (Vinho).");
+                                    }
+                                    break;
+                                }
+
+                                // Verificar se é biológico
+                                while (true) {
+                                    try{
+                                        System.out.print("É um produto biológico? (1 - Sim, 0 - Não): ");
+                                        String resB = scanner.nextLine();
+                                        int respostaB = Integer.parseInt(resB);
+
+                                        if (respostaB == 1) {
+                                            Biologico = "Sim";
+                                            break;
+                                        } else if (respostaB == 0) {
+                                            Biologico = "Nao";
+                                            break;
+                                        } else {
+                                            System.out.println("Opção inválida. Digite 1 para Sim ou 0 para Não.");
+                                        }
+                                    } catch (Exception e){
+                                        System.out.println("Entrada inválida. Por favor, digite 1 para Sim ou 0 para Não.");
+                                    }
+
+                                }
+                                produto = new Intermedia(codigo, nome, descricao, quantidade, valorUnitario, Biologico, categoriaC);
+                                break;
+
+                            case 3:
+                                // Taxa Normal
+                                while (true) {
+                                    try{
+                                        System.out.print("É um produto biológico? (1 - Sim, 0 - Não): ");
+                                        String resB = scanner.nextLine();
+                                        int respostaB = Integer.parseInt(resB);
+
+                                        if (respostaB == 1) {
+                                            Biologico = "Sim";
+                                            break;
+                                        } else if (respostaB == 0) {
+                                            Biologico = "Nao";
+                                            break;
+                                        } else {
+                                            System.out.println("Opção inválida. Digite 1 para Sim ou 0 para Não.");
+                                        }
+                                    } catch (Exception e){
+                                        System.out.println("Entrada inválida. Por favor, digite 1 para Sim ou 0 para Não.");
+                                    }
+
+                                }
+                                produto = new Normal(codigo, nome, descricao, quantidade, valorUnitario, Biologico);
+                                break;
+
+                            default:
+                                System.out.println("Opção inválida. Escolha entre 1 (Reduzida), 2 (Intermédia) ou 3 (Normal).");
+                                continue;
+                        }
+
+                        break; // Sai do loop após um valor válido ser atribuído ao tipo de taxa e ao produto
+
                     } catch (Exception e) {
                         System.out.println("Tipo de taxa inválido! Tem que ser 1 (Reduzida),2 (Intermédia) ou 3 (Normal)");
                     }
                 }
 
-                ArrayList<String> certificacoes = new ArrayList<>();
-                if (taxa == ProdutoAlimentar.TipoTaxa.REDUDIZDA) {
-                    System.out.println("Digite as certificações do produto (ISO22000, FSSC22000, HACCP, GMP): ");
-                    System.out.println("'fim' para encerrar.");
-
-                    while (certificacoes.isEmpty()) { // Enquanto nenhuma certificação for adicionada
-                        while (certificacoes.size() < 4) { // Permite até 4 certificações
-                            try {
-                                System.out.print("Certificação " + (certificacoes.size() + 1) + ": ");
-                                String certificacao = scanner.nextLine();
-
-                                // Verifica se o usuário deseja encerrar
-                                if (certificacao.equalsIgnoreCase("fim")) break;
-
-                                // Valida a certificação
-                                if (ProdutoAlimentar.CertificacaoValida.contains(certificacao)) {
-                                    certificacoes.add(certificacao);
-                                } else {
-                                    System.out.println("Certificação inválida! Escolha entre: ISO22000, FSSC22000, HACCP, GMP.");
-                                }
-                            } catch (Exception e) {
-                                System.out.println("Erro inesperado. Tente novamente.");
-                            }
-                        }
-
-                        if (certificacoes.isEmpty()) {
-                            System.out.println("Erro: Produtos de taxa reduzida devem ter pelo menos uma certificação.");
-                            System.out.println("Por favor, insira pelo menos uma certificação válida.");
-                        }
-                    }
-                }
-
-                // Categoria para taxa intermediária
-                ProdutoAlimentar.Categoria categoria = null;
-                if (taxa == ProdutoAlimentar.TipoTaxa.INTERMEDIA) {
-                    System.out.println("Digite a categoria do produto (1 - Congelados, 2 - Enlatados, 3 - Vinho): ");
-                    while (categoria == null) {
-                        try {
-                            String categoriaOpc = scanner.nextLine();
-                            int categoriaOpcaoA = Integer.parseInt(categoriaOpc);
-
-                            categoria = switch (categoriaOpcaoA) {
-                                case 1 -> ProdutoAlimentar.Categoria.CONGELADOS;
-                                case 2 -> ProdutoAlimentar.Categoria.ENLATADOS;
-                                case 3 -> ProdutoAlimentar.Categoria.VINHO;
-                                default -> throw new IllegalArgumentException("Categoria inválida.");
-                            };
-                        } catch (Exception e) {
-                            System.out.println("Entrada inválida. Escolha entre 1 (Congelados), 2 (Enlatados), ou 3 (Vinho).");
-                        }
-                    }
-                }
-
-                // Verificar se é biológico
-                boolean isBiologico = false;
-                while (true) {
-                    try {
-                        System.out.print("É um produto biológico? (1 - Sim, 0 - Não): ");
-                        String resB = scanner.nextLine();
-                        int respostaB = Integer.parseInt(resB);
-
-                        if (respostaB == 1) {
-                            isBiologico = true;
-                            break;
-                        } else if (respostaB == 0) {
-                            isBiologico = false;
-                            break;
-                        } else {
-                            System.out.println("Opção inválida. Digite 1 para Sim ou 0 para Não.");
-                            continue;
-                        }
-                    } catch (Exception e) {
-                        System.out.println("Entrada inválida. Por favor, digite 1 para Sim ou 0 para Não.");
-                    }
-                }
-
-
-                // Criar Produto Alimentar
-                produto = new ProdutoAlimentar(codigo, nome, descricao, quantidade, valorUnitario, taxa, isBiologico, certificacoes, categoria);
-
-            } else if (tipoProduto == 2) {
+            } else if (tipoProduto == 2){
                 // Produto de Farmácia
                 System.out.println("É um produto com prescrição? (1 - Sim, 0 - Não): ");
+
                 boolean comPrescricao = false;
                 while (true) {
                     try {
@@ -821,34 +880,34 @@ public class Funcoes {
                     }
                 }
 
-                ProdutoFarmacia.Prescricao prescricao = comPrescricao
-                        ? ProdutoFarmacia.Prescricao.ComPrescricao
-                        : ProdutoFarmacia.Prescricao.Normais;
-
-                ProdutoFarmacia.CategoriaF categoriaf = null;
+                // Produto Sem Prescrição
                 if (!comPrescricao) {
+                    SemPrescricao.Categoria categoriaSem = null;
                     System.out.println("Selecione a categoria (1 - Beleza, 2 - Bem-estar, 3 - Bebês, 4 - Animais, 5 - Outro): ");
-                    while (categoriaf == null) {
+                    while (categoriaSem == null) {
                         try {
                             String categoriaOpc = scanner.nextLine();
                             int categoriaOpcaoF = Integer.parseInt(categoriaOpc);
 
-                            categoriaf = switch (categoriaOpcaoF) {
-                                case 1 -> ProdutoFarmacia.CategoriaF.beleza;
-                                case 2 -> ProdutoFarmacia.CategoriaF.bem_estar;
-                                case 3 -> ProdutoFarmacia.CategoriaF.bebes;
-                                case 4 -> ProdutoFarmacia.CategoriaF.animais;
-                                case 5 -> ProdutoFarmacia.CategoriaF.outro;
+                            categoriaSem = switch (categoriaOpcaoF) {
+                                case 1 -> SemPrescricao.Categoria.BELEZA;
+                                case 2 -> SemPrescricao.Categoria.BEM_ESTAR;
+                                case 3 -> SemPrescricao.Categoria.BEBES;
+                                case 4 -> SemPrescricao.Categoria.ANIMAIS;
+                                case 5 -> SemPrescricao.Categoria.OUTRO;
                                 default -> throw new IllegalArgumentException("Categoria inválida.");
                             };
                         } catch (Exception e) {
                             System.out.println("Entrada inválida. Escolha entre 1, 2, 3, 4 ou 5.");
                         }
                     }
-                }
 
-                String medico = null;
-                if (comPrescricao) {
+                    produto = new SemPrescricao(codigo, nome, descricao, quantidade, valorUnitario, categoriaSem);
+
+                }
+                // Produto Com Prescrição
+                else {
+                    String medico = null;
                     while (true) {
                         try {
                             System.out.print("Digite o nome do médico que prescreveu o medicamento: ");
@@ -865,11 +924,9 @@ public class Funcoes {
                             System.out.println("Nome inválido!"); // Mostra o erro para o usuário
                         }
                     }
+
+                    produto = new ComPrescricao(codigo, nome, descricao, quantidade, valorUnitario, medico);
                 }
-
-
-                // Criar Produto de Farmácia
-                produto = new ProdutoFarmacia(codigo, nome, descricao, quantidade, valorUnitario, prescricao, categoriaf, medico);
             }
 
             fatura.adicionarProduto(produto);
@@ -906,7 +963,6 @@ public class Funcoes {
 
         return false; // Se não encontrou a fatura no ficheiro
     }
-
 
     public void salvarFaturaNoFicheiro(Fatura fatura) {
         File file = new File("faturas.txt");
@@ -945,10 +1001,9 @@ public class Funcoes {
             bw.close();
             System.out.println("Fatura salva no ficheiro faturas.txt com sucesso!");
         } catch (IOException e) {
-            System.out.println("Erro ao salvar a fatura no ficheiro: " + e.getMessage());
+            System.out.println("Erro ao salvar a fatura no ficheiro: ");
         }
     }
-
 
     public void editarFatura() {
         System.out.println("--- Editar Fatura ---");
@@ -1101,104 +1156,141 @@ public class Funcoes {
         if (tipoProduto == 1) {
             // Produto Alimentar
             System.out.println("Digite o tipo de taxa (1 - Reduzida, 2 - Intermédia, 3 - Normal): ");
-            ProdutoAlimentar.TipoTaxa taxa;
+
+
             while (true) {
                 try {
+                    String Biologico = null;
+                    Intermedia.Categoria categoriaC = null;
                     String tipoT = scanner.nextLine();
                     int tipoTaxa = Integer.parseInt(tipoT);
+                    Produto produto1;
+                    switch (tipoTaxa) {
+                        case 1:
+                            ArrayList<String> certificacoes = new ArrayList<>();
+                            System.out.println("Digite as certificações do produto (ISO22000, FSSC22000, HACCP, GMP): ");
+                            System.out.println("'fim' para encerrar.");
+                            while (certificacoes.isEmpty()) { // Enquanto nenhuma certificação for adicionada
+                                while (certificacoes.size() < 4) { // Permite até 4 certificações
+                                    try {
+                                        System.out.print("Certificação " + (certificacoes.size() + 1) + ": ");
+                                        String certificacao = scanner.nextLine();
 
-                    taxa = switch (tipoTaxa) {
-                        case 1 -> ProdutoAlimentar.TipoTaxa.REDUDIZDA;
-                        case 2 -> ProdutoAlimentar.TipoTaxa.INTERMEDIA;
-                        case 3 -> ProdutoAlimentar.TipoTaxa.NORMAL;
-                        default -> throw new IllegalArgumentException("Tipo de taxa inválido.");
-                    };
-                    break;
+                                        // Verifica se o usuário deseja encerrar
+                                        if (certificacao.equalsIgnoreCase("fim")) break;
+
+                                        // Valida a certificação
+                                        if (Reduzida.CertificacaoValida.contains(certificacao)) {
+                                            certificacoes.add(certificacao);
+                                        } else {
+                                            System.out.println("Certificação inválida! Escolha entre: ISO22000, FSSC22000, HACCP, GMP.");
+                                        }
+                                    } catch (Exception e) {
+                                        System.out.println("Erro inesperado. Tente novamente.");
+                                    }
+                                }
+
+                                if (certificacoes.isEmpty()) {
+                                    System.out.println("Erro: Produtos de taxa reduzida devem ter pelo menos uma certificação.");
+                                    System.out.println("Por favor, insira pelo menos uma certificação válida.");
+                                }
+                            }
+
+                            // Verificar se é biológico
+                            while (true) {
+                                try {
+                                    System.out.print("É um produto biológico? (1 - Sim, 0 - Não): ");
+                                    String resB = scanner.nextLine();
+                                    int respostaB = Integer.parseInt(resB);
+
+                                    if (respostaB == 1) {
+                                        Biologico = "Sim";
+                                        break;
+                                    } else if (respostaB == 0) {
+                                        Biologico = "Nao";
+                                        break;
+                                    } else {
+                                        System.out.println("Opção inválida. Digite 1 para Sim ou 0 para Não.");
+                                        continue;
+                                    }
+                                } catch (Exception e) {
+                                    System.out.println("Entrada inválida. Por favor, digite 1 para Sim ou 0 para Não.");
+                                }
+                            }
+                            produto1 = new Reduzida(codigo, nome, descricao, quantidade, valorUnitario, Biologico, certificacoes);
+                            break;
+                        case 2:
+                            // Categoria para taxa intermediária
+                            System.out.println("Digite a categoria do produto (1 - Congelados, 2 - Enlatados, 3 - Vinho): ");
+                            while (true) {
+                                try {
+                                    String categoriaOpc = scanner.nextLine();
+                                    int categoriaOpcaoA = Integer.parseInt(categoriaOpc);
+
+                                    categoriaC = switch (categoriaOpcaoA) {
+                                        case 1 -> Intermedia.Categoria.CONGELADOS;
+                                        case 2 -> Intermedia.Categoria.ENLATADOS;
+                                        case 3 -> Intermedia.Categoria.VINHO;
+                                        default -> throw new IllegalArgumentException("Categoria inválida.");
+                                    };
+                                } catch (Exception e) {
+                                    System.out.println("Entrada inválida. Escolha entre 1 (Congelados), 2 (Enlatados), ou 3 (Vinho).");
+                                }
+                                break;
+                            }
+
+                            // Verificar se é biológico
+                            while (true) {
+                                try {
+                                    System.out.print("É um produto biológico? (1 - Sim, 0 - Não): ");
+                                    String resB = scanner.nextLine();
+                                    int respostaB = Integer.parseInt(resB);
+
+                                    if (respostaB == 1) {
+                                        Biologico = "Sim";
+                                        break;
+                                    } else if (respostaB == 0) {
+                                        Biologico = "Nao";
+                                        break;
+                                    } else {
+                                        System.out.println("Opção inválida. Digite 1 para Sim ou 0 para Não.");
+                                        continue;
+                                    }
+                                } catch (Exception e) {
+                                    System.out.println("Entrada inválida. Por favor, digite 1 para Sim ou 0 para Não.");
+                                }
+                            }
+                            produto1 = new Intermedia(codigo, nome, descricao, quantidade, valorUnitario, Biologico, categoriaC);
+                            break;
+                        case 3:
+                            // Verificar se é biológico
+                            while (true) {
+                                try {
+                                    System.out.print("É um produto biológico? (1 - Sim, 0 - Não): ");
+                                    String resB = scanner.nextLine();
+                                    int respostaB = Integer.parseInt(resB);
+
+                                    if (respostaB == 1) {
+                                        Biologico = "Sim";
+                                        break;
+                                    } else if (respostaB == 0) {
+                                        Biologico = "Nao";
+                                        break;
+                                    } else {
+                                        System.out.println("Opção inválida. Digite 1 para Sim ou 0 para Não.");
+                                        continue;
+                                    }
+                                } catch (Exception e) {
+                                    System.out.println("Entrada inválida. Por favor, digite 1 para Sim ou 0 para Não.");
+                                }
+                            }
+                            produto1 = new Normal(codigo, nome, descricao, quantidade, valorUnitario, Biologico);
+                            break;
+                    }
                 } catch (Exception e) {
                     System.out.println("Tipo de taxa inválido! Tem que ser 1 (Reduzida),2 (Intermédia) ou 3 (Normal)");
                 }
             }
-
-            ArrayList<String> certificacoes = new ArrayList<>();
-            if (taxa == ProdutoAlimentar.TipoTaxa.REDUDIZDA) {
-                System.out.println("Digite as certificações do produto (ISO22000, FSSC22000, HACCP, GMP): ");
-                System.out.println("'fim' para encerrar.");
-
-                while (certificacoes.isEmpty()) { // Enquanto nenhuma certificação for adicionada
-                    while (certificacoes.size() < 4) { // Permite até 4 certificações
-                        try {
-                            System.out.print("Certificação " + (certificacoes.size() + 1) + ": ");
-                            String certificacao = scanner.nextLine();
-
-                            // Verifica se o usuário deseja encerrar
-                            if (certificacao.equalsIgnoreCase("fim")) break;
-
-                            // Valida a certificação
-                            if (ProdutoAlimentar.CertificacaoValida.contains(certificacao)) {
-                                certificacoes.add(certificacao);
-                            } else {
-                                System.out.println("Certificação inválida! Escolha entre: ISO22000, FSSC22000, HACCP, GMP.");
-                            }
-                        } catch (Exception e) {
-                            System.out.println("Erro inesperado. Tente novamente.");
-                        }
-                    }
-
-                    if (certificacoes.isEmpty()) {
-                        System.out.println("Erro: Produtos de taxa reduzida devem ter pelo menos uma certificação.");
-                        System.out.println("Por favor, insira pelo menos uma certificação válida.");
-                    }
-                }
-            }
-
-            // Categoria para taxa intermediária
-            ProdutoAlimentar.Categoria categoria = null;
-            if (taxa == ProdutoAlimentar.TipoTaxa.INTERMEDIA) {
-                System.out.println("Digite a categoria do produto (1 - Congelados, 2 - Enlatados, 3 - Vinho): ");
-                while (categoria == null) {
-                    try {
-                        String categoriaOpc = scanner.nextLine();
-                        int categoriaOpcaoA = Integer.parseInt(categoriaOpc);
-
-                        categoria = switch (categoriaOpcaoA) {
-                            case 1 -> ProdutoAlimentar.Categoria.CONGELADOS;
-                            case 2 -> ProdutoAlimentar.Categoria.ENLATADOS;
-                            case 3 -> ProdutoAlimentar.Categoria.VINHO;
-                            default -> throw new IllegalArgumentException("Categoria inválida.");
-                        };
-                    } catch (Exception e) {
-                        System.out.println("Entrada inválida. Escolha entre 1 (Congelados), 2 (Enlatados), ou 3 (Vinho).");
-                    }
-                }
-            }
-
-            // Verificar se é biológico
-            boolean isBiologico = false;
-            while (true) {
-                try {
-                    System.out.print("É um produto biológico? (1 - Sim, 0 - Não): ");
-                    String resB = scanner.nextLine();
-                    int respostaB = Integer.parseInt(resB);
-
-                    if (respostaB == 1) {
-                        isBiologico = true;
-                        break;
-                    } else if (respostaB == 0) {
-                        isBiologico = false;
-                        break;
-                    } else {
-                        System.out.println("Opção inválida. Digite 1 para Sim ou 0 para Não.");
-                        continue;
-                    }
-                } catch (Exception e) {
-                    System.out.println("Entrada inválida. Por favor, digite 1 para Sim ou 0 para Não.");
-                }
-            }
-
-
-            // Criar Produto Alimentar
-            produto = new ProdutoAlimentar(codigo, nome, descricao, quantidade, valorUnitario, taxa, isBiologico, certificacoes, categoria);
-            fatura.adicionarProduto(produto);
 
         } else if (tipoProduto == 2) {
             // Produto de Farmácia
@@ -1223,30 +1315,28 @@ public class Funcoes {
                 }
             }
 
-            ProdutoFarmacia.Prescricao prescricao = comPrescricao
-                    ? ProdutoFarmacia.Prescricao.ComPrescricao
-                    : ProdutoFarmacia.Prescricao.Normais;
-
-            ProdutoFarmacia.CategoriaF categoriaf = null;
+            SemPrescricao.Categoria categoriaSem = null;
             if (!comPrescricao) {
                 System.out.println("Selecione a categoria (1 - Beleza, 2 - Bem-estar, 3 - Bebês, 4 - Animais, 5 - Outro): ");
-                while (categoriaf == null) {
+                while (categoriaSem == null) {
                     try {
                         String categoriaOpc = scanner.nextLine();
                         int categoriaOpcaoF = Integer.parseInt(categoriaOpc);
 
-                        categoriaf = switch (categoriaOpcaoF) {
-                            case 1 -> ProdutoFarmacia.CategoriaF.beleza;
-                            case 2 -> ProdutoFarmacia.CategoriaF.bem_estar;
-                            case 3 -> ProdutoFarmacia.CategoriaF.bebes;
-                            case 4 -> ProdutoFarmacia.CategoriaF.animais;
-                            case 5 -> ProdutoFarmacia.CategoriaF.outro;
+                        categoriaSem = switch (categoriaOpcaoF) {
+                            case 1 -> SemPrescricao.Categoria.BELEZA;
+                            case 2 -> SemPrescricao.Categoria.BEM_ESTAR;
+                            case 3 -> SemPrescricao.Categoria.BEBES;
+                            case 4 -> SemPrescricao.Categoria.ANIMAIS;
+                            case 5 -> SemPrescricao.Categoria.OUTRO;
                             default -> throw new IllegalArgumentException("Categoria inválida.");
                         };
                     } catch (Exception e) {
                         System.out.println("Entrada inválida. Escolha entre 1, 2, 3, 4 ou 5.");
                     }
                 }
+                produto = new SemPrescricao(codigo, nome, descricao, quantidade, valorUnitario, categoriaSem);
+
             }
 
             String medico = null;
@@ -1267,12 +1357,16 @@ public class Funcoes {
                         System.out.println("Nome inválido!"); // Mostra o erro para o usuário
                     }
                 }
+                produto = new ComPrescricao(codigo, nome, descricao, quantidade, valorUnitario, medico);
+
             }
 
+
             // Criar Produto de Farmácia
-            produto = new ProdutoFarmacia(codigo, nome, descricao, quantidade, valorUnitario, prescricao, categoriaf, medico);
-            fatura.adicionarProduto(produto);
+            //produto = new ComPrescricao(codigo, nome, descricao, quantidade, valorUnitario, medico);
         }
+
+        fatura.adicionarProduto(produto);
     }
 
     public void editarProdutoFatura(Fatura fatura, Scanner scanner) {
@@ -1281,6 +1375,8 @@ public class Funcoes {
             System.out.println("A fatura não possui produtos para editar.");
             return;
         }
+
+
         Produto produtoSelecionado = null;
         while (produtoSelecionado == null) {
             try {
@@ -1415,70 +1511,13 @@ public class Funcoes {
         }
     }
 
-    private void editarProdutoAlimentar(ProdutoAlimentar produto, Scanner scanner) {
-        // Editar biológico
-        while (true) {
-            try {
-                System.out.print("É biológico (1 - Sim, 0 - Não) (atual: " + produto.isBiologico() + "): ");
-                String entrada = scanner.nextLine();
-                if (entrada.isBlank()) break; // Manter o valor atual
-                int isBio = Integer.parseInt(entrada);
-                produto.setBiologico(isBio == 1);
-                break;
-            } catch (NumberFormatException e) {
-                System.out.println("Entrada inválida. Digite 1 para Sim ou 0 para Não.");
-            }
-        }
-
-        // Se for de taxa intermediária, editar categoria
-        if (produto.getTipoTaxa() == ProdutoAlimentar.TipoTaxa.INTERMEDIA) {
-            while (true) {
-                try {
-                    System.out.println("Digite a categoria (1 - Congelados, 2 - Enlatados, 3 - Vinho) (atual: " + produto.getCategoria() + "): ");
-                    String categoriaEntrada = scanner.nextLine();
-                    if (categoriaEntrada.isBlank()) break; // Manter o valor atual
-                    ProdutoAlimentar.Categoria novaCategoria = switch (Integer.parseInt(categoriaEntrada)) {
-                        case 1 -> ProdutoAlimentar.Categoria.CONGELADOS;
-                        case 2 -> ProdutoAlimentar.Categoria.ENLATADOS;
-                        case 3 -> ProdutoAlimentar.Categoria.VINHO;
-                        default -> throw new IllegalArgumentException("Categoria inválida.");
-                    };
-                    produto.setCategoria(novaCategoria);
-                    break;
-                } catch (NumberFormatException e) {
-                    System.out.println("Entrada inválida. Escolha 1 (Congelados), 2 (Enlatados) ou 3 (Vinho).");
-                }
-            }
-        }
-    }
-
     private void editarProdutoFarmacia(ProdutoFarmacia produto, Scanner scanner) {
-        if (produto.getPrescricao() == ProdutoFarmacia.Prescricao.ComPrescricao) {
-            System.out.print("Digite o nome do médico (atual: " + produto.getMedico() + "): ");
-            String novoMedico = scanner.nextLine();
-            if (!novoMedico.isBlank()) produto.setMedico(novoMedico);
-        } else {
-            while (true) {
-                try {
-                    System.out.println("Digite a categoria (1 - Beleza, 2 - Bem-estar, 3 - Bebês, 4 - Animais, 5 - Outro) (atual: "
-                            + produto.getCategoriaf() + "): ");
-                    String categoriaEntrada = scanner.nextLine();
-                    if (categoriaEntrada.isBlank()) break; // Manter o valor atual
-                    ProdutoFarmacia.CategoriaF novaCategoriaF = switch (Integer.parseInt(categoriaEntrada)) {
-                        case 1 -> ProdutoFarmacia.CategoriaF.beleza;
-                        case 2 -> ProdutoFarmacia.CategoriaF.bem_estar;
-                        case 3 -> ProdutoFarmacia.CategoriaF.bebes;
-                        case 4 -> ProdutoFarmacia.CategoriaF.animais;
-                        case 5 -> ProdutoFarmacia.CategoriaF.outro;
-                        default -> throw new IllegalArgumentException("Categoria inválida.");
-                    };
-                    produto.setCategoriaf(novaCategoriaF);
-                    break;
-                } catch (NumberFormatException e) {
-                    System.out.println("Entrada inválida. Escolha 1, 2, 3, 4 ou 5.");
-                }
-            }
-        }
+        produto.editarAtributos(scanner);
     }
 
+
+
+    private void editarProdutoAlimentar(ProdutoAlimentar produto, Scanner scanner) {
+        produto.editarAtributos(scanner);
+    }
 }
