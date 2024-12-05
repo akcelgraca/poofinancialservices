@@ -8,156 +8,119 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.IOException;
+
+/**
+ * A classe {@code Funcoes} implementa as funcionalidades principais do sistema de gestão,
+ *
+ * <p>Funções implementadas:</p>
+ * <ul>
+ *     <li>Criação de clientes com validação de nome, NIF e localização.</li>
+ *     <li>Edição de informações de clientes (nome e localização).</li>
+ *     <li>Verificação de duplicação de NIF em ficheiros.</li>
+ * </ul>
+ *
+ * @see Cliente
+ * @see Fatura
+ * @author Akcel Graça
+ * @version 3.0
+ */
 
 public class Funcoes {
+    /**
+     * Lista de clientes gerenciada pela classe.
+     */
     private ArrayList<Cliente> clientes;
+
+    /**
+     * Lista de faturas gerenciada pela classe.
+     */
     private ArrayList<Fatura> faturas;
+
+    /**
+     * Scanner para capturar entradas do usuário.
+     */
     Scanner scanner = new Scanner(System.in);
+
+    /**
+     * Ficheiro que armazena os dados dos clientes.
+     */
     File dados = new File("ficheiro.txt");
+
+    /**
+     * Ficheiro que armazena os dados das faturas.
+     */
     File fat = new File("faturas.txt");
+
+    /**
+     * Data e hora atuais no formato "HH:mm:ss".
+     */
     DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
     String date = dateFormat.format(new Date());
 
+    /**
+     * Construtor da classe que inicializa as listas de clientes e faturas.
+     */
     public Funcoes() {
         clientes = new ArrayList<>();
         faturas = new ArrayList<>();
     }
 
-    public void listarFaturas() {
-        if (fat.exists() && fat.isFile()) {
-            try (BufferedReader br = new BufferedReader(new FileReader(fat))) {
-                String linha;
-                boolean faturaIniciada = false;
-
-                String numeroFatura = "";
-                String nomeCliente = "";
-                String nifCliente = "";
-                String localizacao = "";
-                int quantidadeProdutos = 0;
-                double subtotal = 0.0;
-                double subtotalIVA = 0.0;
-
-                while ((linha = br.readLine()) != null) {
-                    if (linha.startsWith("Fatura Nº: ")) {
-                        // Se já estiver processando uma fatura, exibe os detalhes acumulados
-                        if (faturaIniciada) {
-                            System.out.printf("Número: %s, Cliente: %s, NIF: %s, Localização: %s, Produtos: %d, SUBTOTAL: %.2f, SUBTOTAL IVA: %.2f",
-                                    numeroFatura, nomeCliente, nifCliente, localizacao, quantidadeProdutos, subtotal, subtotalIVA);
-                            // Reseta os valores para a próxima fatura
-                            quantidadeProdutos = 0;
-                            subtotal = 0.0;
-                            subtotalIVA = 0.0;
-                            System.out.printf("\n");
-                        }
-
-                        // Inicia uma nova fatura
-                        faturaIniciada = true;
-                        numeroFatura = linha.substring(10).trim();
-                    } else if (linha.startsWith("Nome do Cliente: ")) {
-                        nomeCliente = linha.substring(17).trim();
-                    } else if (linha.startsWith("NIF do Cliente: ")) {
-                        nifCliente = linha.substring(16).trim();
-                    } else if (linha.startsWith("Localização: ")) {
-                        localizacao = linha.substring(13).trim();
-                    } else if (linha.startsWith("SUBTOTAL: ")) {
-                        subtotal += Double.parseDouble(linha.substring(10).trim());
-                    } else if (linha.startsWith("SUBTOTAL IVA: ")) {
-                        subtotalIVA += Double.parseDouble(linha.substring(14).trim());
-                        quantidadeProdutos++; // Incrementa a quantidade de produtos
-                    }
-                }
-
-                // Exibe os detalhes da última fatura processada
-                if (faturaIniciada) {
-
-                    System.out.printf("Número: %s, Cliente: %s, NIF: %s, Localização: %s, Produtos: %d, SUBTOTAL: %.2f, SUBTOTAL IVA: %.2f",
-                            numeroFatura, nomeCliente, nifCliente, localizacao, quantidadeProdutos, subtotal, subtotalIVA);
-                }
-
-            } catch (IOException ex) {
-                System.out.println("Erro ao ler o ficheiro de texto: " + ex.getMessage());
-            }
-        } else {
-            System.out.println("Ficheiro não existe.");
-        }
-    }
-
-
-    public void visualizarFatura() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Digite o número da fatura para visualizar: ");
-
-        int numeroFatura;
-        try {
-            String nF = scanner.nextLine();
-            numeroFatura = Integer.parseInt(nF);
-        } catch (Exception e) {
-            System.out.println("Entrada inválida. Por favor, insira um número.");
-            return;
-        }
-
-        if (fat.exists() && fat.isFile()) {
-            try (FileReader fr = new FileReader(fat);
-                 BufferedReader br = new BufferedReader(fr)) {
-
-                String line;
-                boolean faturaEncontrada = false;
-                StringBuilder detalhesFatura = new StringBuilder();
-
-                while ((line = br.readLine()) != null) {
-                    if (line.startsWith("Fatura Nº: ")) {
-                        // Verifica se é a fatura desejada
-                        int numeroAtual = Integer.parseInt(line.substring(10).trim());
-                        if (numeroAtual == numeroFatura) {
-                            faturaEncontrada = true;
-                            detalhesFatura.append(line).append("\n"); // Adiciona ao buffer de detalhes
-                        } else if (faturaEncontrada) {
-                            // Se encontrou outra fatura, termina a leitura da desejada
-                            break;
-                        }
-                    } else if (faturaEncontrada) {
-                        detalhesFatura.append(line).append("\n"); // Continua acumulando detalhes
-                    }
-                }
-
-                if (faturaEncontrada) {
-                    System.out.println(detalhesFatura);
-                } else {
-                    System.out.println("Fatura não encontrada!");
-                }
-
-            } catch (FileNotFoundException ex) {
-                System.out.println("Erro ao abrir ficheiro de texto.");
-            } catch (IOException ex) {
-                System.out.println("Erro ao ler ficheiro de texto.");
-            }
-        } else {
-            System.out.println("Ficheiro não existe.");
-        }
-    }
-
-
+    /**
+     * Arredonda um valor para duas casas decimais.
+     *
+     * @param valor O valor a ser arredondado.
+     * @return O valor arredondado com duas casas decimais.
+     */
     public double arredondar(double valor) {
-        return Math.round(valor * 100.0) / 100.0; // Arredondar para 2 casas decimais
+        return Math.round(valor * 100.0) / 100.0;
     }
 
-
+    /**
+     * Obtém a lista de clientes gerenciada pela classe.
+     *
+     * @return A lista de clientes.
+     */
     public ArrayList<Cliente> getClientes() {
         return clientes;
     }
 
+    /**
+     * Define a lista de clientes gerenciada pela classe.
+     *
+     * @param clientes A nova lista de clientes.
+     */
     public void setClientes(ArrayList<Cliente> clientes) {
         this.clientes = clientes;
     }
 
+    /**
+     * Obtém a lista de faturas gerenciada pela classe.
+     *
+     * @return A lista de faturas.
+     */
     public ArrayList<Fatura> getFaturas() {
         return faturas;
     }
 
+    /**
+     * Define a lista de faturas gerenciada pela classe.
+     *
+     * @param faturas A nova lista de faturas.
+     */
     public void setFaturas(ArrayList<Fatura> faturas) {
         this.faturas = faturas;
     }
 
+
+    /**
+     * Valida se o nome fornecido contém apenas letras e espaços.
+     *
+     * @param nome O nome a ser validado.
+     * @return {@code true} se o nome for válido, {@code false} caso contrário.
+     */
     private boolean isNomeValido(String nome) {
         for (char c : nome.toCharArray()) {
             if (!Character.isLetter(c) && !Character.isWhitespace(c)) {
@@ -167,6 +130,12 @@ public class Funcoes {
         return true; // Nome válido
     }
 
+    /**
+     * Valida se uma string contém apenas caracteres numéricos.
+     *
+     * @param str A string a ser validada.
+     * @return {@code true} se a string for numérica, {@code false} caso contrário.
+     */
     private boolean isNumerico(String str) {
         for (char c : str.toCharArray()) {
             if (!Character.isDigit(c)) {
@@ -175,6 +144,22 @@ public class Funcoes {
         }
         return true; // É numérico
     }
+
+    /**
+     * Cria um novo cliente, validando as informações fornecidas pelo usuário,
+     * incluindo nome, NIF e localização. Os dados do cliente são persistidos
+     * em um ficheiro.
+     *
+     * <p>Etapas:</p>
+     * <ol>
+     *     <li>Validação do nome: Permite apenas letras e espaços.</li>
+     *     <li>Validação do NIF: Deve conter exatamente 9 números.</li>
+     *     <li>Verificação de duplicação: Garante que o NIF não esteja duplicado no ficheiro.</li>
+     *     <li>Seleção de localização: Permite escolher entre Portugal Continental, Madeira ou Açores.</li>
+     * </ol>
+     *
+     * @throws IllegalArgumentException Se o nome ou NIF não forem válidos.
+     */
 
     public void criarCliente() {
         Scanner scanner = new Scanner(System.in);
@@ -270,7 +255,12 @@ public class Funcoes {
         System.out.println("Cliente criado com sucesso!");
     }
 
-    // Função para verificar se o NIF já existe no ficheiro
+    /**
+     * Verifica se um NIF já está registrado no ficheiro de dados.
+     *
+     * @param nifR O NIF a ser verificado.
+     * @return {@code true} se o NIF já existir no ficheiro, {@code false} caso contrário.
+     */
     private boolean lerFicheiro(int nifR) {
         if (!dados.exists()) {
             return false; // Se o ficheiro não existe, o NIF não pode existir
@@ -293,6 +283,22 @@ public class Funcoes {
         return false; // NIF não encontrado
     }
 
+
+    /**
+     * Permite editar informações de um cliente existente no ficheiro, como nome e localização.
+     * O cliente é identificado pelo NIF fornecido pelo usuário.
+     *
+     * <p>Etapas:</p>
+     * <ol>
+     *     <li>Busca do cliente no ficheiro pelo NIF.</li>
+     *     <li>Permite a edição interativa do nome.</li>
+     *     <li>Permite a alteração da localização (opções: Portugal Continental, Madeira ou Açores).</li>
+     *     <li>Atualiza o ficheiro com os novos dados.</li>
+     * </ol>
+     *
+     * @throws IllegalArgumentException Se o NIF fornecido não for válido.
+     * @throws IOException Se ocorrer um erro ao acessar o ficheiro.
+     */
 
     public void editarClientes() {
         Scanner scanner = new Scanner(System.in);
@@ -432,69 +438,13 @@ public class Funcoes {
     }
 
 
-    public void listarClientes() {
-        List<Cliente> clientesLidos = new ArrayList<>();
-        if (!dados.exists()) {
-            System.out.println("Nenhum cliente cadastrado no ficheiro.");
-            return;
-        }
-
-        try (BufferedReader br = new BufferedReader(new FileReader(dados))) {
-            String linha;
-            Cliente clienteAtual = null;
-
-            while ((linha = br.readLine()) != null) {
-                // Interpretar os dados do ficheiro
-                if (linha.startsWith("NIF: ")) {
-                    int nif = Integer.parseInt(linha.substring(5).trim());
-                    clienteAtual = new Cliente("", nif, null); // Criar um cliente básico
-                    clientesLidos.add(clienteAtual); // Adicionar à lista de clientes
-                } else if (linha.startsWith("Nome: ") && clienteAtual != null) {
-                    clienteAtual.setNome(linha.substring(6).trim()); // Atualizar o nome
-                } else if (linha.startsWith("Localização: ") && clienteAtual != null) {
-                    String localizacaoTexto = linha.substring(13).trim();
-                    Cliente.Localizacao localizacao = null;
-                    switch (localizacaoTexto) {
-                        case "Portugal Continental":
-                            localizacao = Cliente.Localizacao.PortugalContinental;
-                            break;
-                        case "Madeira":
-                            localizacao = Cliente.Localizacao.Madeira;
-                            break;
-                        case "Açores":
-                            localizacao = Cliente.Localizacao.Açores;
-                            break;
-                        default:
-                            System.out.println("Localização inválida encontrada: " + localizacaoTexto);
-                    }
-
-                    if (localizacao != null) {
-                        clienteAtual.setLocalizacao(localizacao); // Atualizar a localização
-                    } else {
-                        clienteAtual.setLocalizacao(Cliente.Localizacao.PortugalContinental); // Definir uma localização padrão
-                    }
-                }
-            }
-        } catch (IOException e) {
-            System.out.println("Erro ao ler o ficheiro");
-            return;
-        }
-
-        if (clientesLidos.isEmpty()) {
-            System.out.println("Nenhum cliente cadastrado no ficheiro.");
-            return;
-        }
-
-        // Exibir os clientes lidos
-        System.out.println("--- Lista de Clientes ---\n");
-        for (Cliente cliente : clientesLidos) {
-            if (cliente != null) {
-                System.out.println(cliente); // Aqui é necessário garantir que o método toString() da classe Cliente está bem implementado
-            }
-        }
-    }
-
-
+    /**
+     * Carrega os clientes armazenados em um ficheiro e os retorna como uma lista.
+     * Cada cliente é construído com base nas informações encontradas no ficheiro.
+     *
+     * @return Uma lista de objetos {@code Cliente} carregados do ficheiro.
+     *         Se o ficheiro não existir ou estiver vazio, retorna uma lista vazia.
+     */
     public List<Cliente> carregarClientesDoFicheiro() {
         List<Cliente> clientesDoFicheiro = new ArrayList<>();
 
@@ -517,7 +467,7 @@ public class Funcoes {
                 } else if (linha.startsWith("Localização: ")) {
                     String loc = linha.substring(13).trim();
                     localizacao = switch (loc) {
-                        case "Portugal Continental" -> Cliente.Localizacao.PortugalContinental;
+                        case "PortugalContinental" -> Cliente.Localizacao.PortugalContinental;
                         case "Madeira" -> Cliente.Localizacao.Madeira;
                         case "Açores" -> Cliente.Localizacao.Açores;
                         default -> throw new IllegalArgumentException("Localização inválida no ficheiro.");
@@ -527,13 +477,60 @@ public class Funcoes {
                 }
             }
         } catch (IOException e) {
-            System.out.println("Erro ao carregar clientes do ficheiro: ");
+            System.out.println("Erro ao carregar clientes do ficheiro: " + e.getMessage());
         }
 
         return clientesDoFicheiro;
     }
 
+    /**
+     * Lista todos os clientes armazenados no ficheiro.
+     * O método utiliza {@code carregarClientesDoFicheiro} para obter os dados
+     * e os imprime na saída padrão.
+     *
+     * <p>Requisitos:</p>
+     * <ul>
+     *     <li>O ficheiro deve conter clientes cadastrados.</li>
+     *     <li>É esperado que a classe {@code Cliente} implemente um método {@code toString()} para exibição formatada.</li>
+     * </ul>
+     */
+    public void listarClientes() {
+        List<Cliente> clientesLidos = carregarClientesDoFicheiro(); // Reutiliza o método
+        if (clientesLidos.isEmpty()) {
+            System.out.println("Nenhum cliente cadastrado no ficheiro.");
+            return;
+        }
 
+        System.out.println("--- Lista de Clientes ---\n");
+        for (Cliente cliente : clientesLidos) {
+            System.out.println(cliente); // Garante que o método toString() está bem implementado
+        }
+    }
+
+    /**
+     * Permite ao usuário criar uma nova fatura, associando-a a um cliente existente e adicionando produtos.
+     * O método inclui:
+     * <ul>
+     *     <li>Validação e seleção do cliente por NIF.</li>
+     *     <li>Criação de produtos alimentares e farmacêuticos com opções específicas.</li>
+     *     <li>Persistência da fatura em um ficheiro e armazenamento na lista de faturas.</li>
+     * </ul>
+     *
+     * <p>Processo de Criação:</p>
+     * <ol>
+     *     <li>Solicitar número único para a fatura, garantindo que não exista duplicação.</li>
+     *     <li>Validar e associar a fatura a um cliente por NIF.</li>
+     *     <li>Adicionar produtos:
+     *         <ul>
+     *             <li>Produtos alimentares podem ser de taxa reduzida, intermédia ou normal.</li>
+     *             <li>Produtos de farmácia podem ser com ou sem prescrição médica.</li>
+     *         </ul>
+     *     </li>
+     * </ol>
+     *
+     * @throws IllegalArgumentException Se os dados fornecidos forem inválidos.
+     * @throws IOException Se houver erros ao salvar a fatura no ficheiro.
+     */
     public void criarFaturas() {
         Scanner scanner = new Scanner(System.in);
         // Carregar clientes do ficheiro
@@ -936,6 +933,154 @@ public class Funcoes {
         System.out.println("Fatura criada com sucesso!");
     }
 
+    /**
+     * Lista todas as faturas armazenadas no ficheiro de texto.
+     * Exibe informações resumidas de cada fatura, incluindo:
+     * <ul>
+     *     <li>Número da fatura</li>
+     *     <li>Nome do cliente</li>
+     *     <li>NIF do cliente</li>
+     *     <li>Localização</li>
+     *     <li>Quantidade de produtos</li>
+     *     <li>Subtotal (sem IVA)</li>
+     *     <li>Subtotal do IVA</li>
+     * </ul>
+     *
+     * O método processa o ficheiro linha por linha e reseta os valores acumulados a cada nova fatura encontrada.
+     *
+     * @throws IOException Se ocorrer um erro ao acessar ou processar o ficheiro.
+     */
+    public void listarFaturas() {
+        if (fat.exists() && fat.isFile()) {
+            try (BufferedReader br = new BufferedReader(new FileReader(fat))) {
+                String linha;
+                boolean faturaIniciada = false;
+
+                String numeroFatura = "";
+                String nomeCliente = "";
+                String nifCliente = "";
+                String localizacao = "";
+                int quantidadeProdutos = 0;
+                double subtotal = 0.0;
+                double subtotalIVA = 0.0;
+
+                while ((linha = br.readLine()) != null) {
+                    if (linha.startsWith("Fatura Nº: ")) {
+                        // Se já estiver processando uma fatura, exibe os detalhes acumulados
+                        if (faturaIniciada) {
+                            System.out.printf("Número: %s, Cliente: %s, NIF: %s, Localização: %s, Produtos: %d, SUBTOTAL: %.2f, SUBTOTAL IVA: %.2f",
+                                    numeroFatura, nomeCliente, nifCliente, localizacao, quantidadeProdutos, subtotal, subtotalIVA);
+                            // Reseta os valores para a próxima fatura
+                            quantidadeProdutos = 0;
+                            subtotal = 0.0;
+                            subtotalIVA = 0.0;
+                            System.out.printf("\n");
+                        }
+
+                        // Inicia uma nova fatura
+                        faturaIniciada = true;
+                        numeroFatura = linha.substring(10).trim();
+                    } else if (linha.startsWith("Nome do Cliente: ")) {
+                        nomeCliente = linha.substring(17).trim();
+                    } else if (linha.startsWith("NIF do Cliente: ")) {
+                        nifCliente = linha.substring(16).trim();
+                    } else if (linha.startsWith("Localização: ")) {
+                        localizacao = linha.substring(13).trim();
+                    } else if (linha.startsWith("SUBTOTAL: ")) {
+                        subtotal += Double.parseDouble(linha.substring(10).trim());
+                    } else if (linha.startsWith("SUBTOTAL IVA: ")) {
+                        subtotalIVA += Double.parseDouble(linha.substring(14).trim());
+                        quantidadeProdutos++; // Incrementa a quantidade de produtos
+                    }
+                }
+
+                // Exibe os detalhes da última fatura processada
+                if (faturaIniciada) {
+
+                    System.out.printf("Número: %s, Cliente: %s, NIF: %s, Localização: %s, Produtos: %d, SUBTOTAL: %.2f, SUBTOTAL IVA: %.2f",
+                            numeroFatura, nomeCliente, nifCliente, localizacao, quantidadeProdutos, subtotal, subtotalIVA);
+                }
+
+            } catch (IOException ex) {
+                System.out.println("Erro ao ler o ficheiro de texto: " + ex.getMessage());
+            }
+        } else {
+            System.out.println("Ficheiro não existe.");
+        }
+    }
+
+    /**
+     * Permite ao usuário visualizar os detalhes de uma fatura específica, com base no seu número.
+     * <p>Processo:</p>
+     * <ol>
+     *     <li>Solicita ao usuário o número da fatura desejada.</li>
+     *     <li>Procura no ficheiro por uma fatura com o número especificado.</li>
+     *     <li>Exibe todos os detalhes da fatura se encontrada.</li>
+     *     <li>Se não encontrada, informa ao usuário que a fatura não existe.</li>
+     * </ol>
+     *
+     * @throws NumberFormatException Se a entrada do número da fatura não for válida.
+     * @throws IOException Se ocorrer um erro ao acessar ou processar o ficheiro.
+     */
+    public void visualizarFatura() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Digite o número da fatura para visualizar: ");
+
+        int numeroFatura;
+        try {
+            String nF = scanner.nextLine();
+            numeroFatura = Integer.parseInt(nF);
+        } catch (Exception e) {
+            System.out.println("Entrada inválida. Por favor, insira um número.");
+            return;
+        }
+
+        if (fat.exists() && fat.isFile()) {
+            try (FileReader fr = new FileReader(fat);
+                 BufferedReader br = new BufferedReader(fr)) {
+
+                String line;
+                boolean faturaEncontrada = false;
+                StringBuilder detalhesFatura = new StringBuilder();
+
+                while ((line = br.readLine()) != null) {
+                    if (line.startsWith("Fatura Nº: ")) {
+                        // Verifica se é a fatura desejada
+                        int numeroAtual = Integer.parseInt(line.substring(10).trim());
+                        if (numeroAtual == numeroFatura) {
+                            faturaEncontrada = true;
+                            detalhesFatura.append(line).append("\n"); // Adiciona ao buffer de detalhes
+                        } else if (faturaEncontrada) {
+                            // Se encontrou outra fatura, termina a leitura da desejada
+                            break;
+                        }
+                    } else if (faturaEncontrada) {
+                        detalhesFatura.append(line).append("\n"); // Continua acumulando detalhes
+                    }
+                }
+
+                if (faturaEncontrada) {
+                    System.out.println(detalhesFatura);
+                } else {
+                    System.out.println("Fatura não encontrada!");
+                }
+
+            } catch (FileNotFoundException ex) {
+                System.out.println("Erro ao abrir ficheiro de texto.");
+            } catch (IOException ex) {
+                System.out.println("Erro ao ler ficheiro de texto.");
+            }
+        } else {
+            System.out.println("Ficheiro não existe.");
+        }
+    }
+
+    /**
+     * Verifica se um número de fatura já existe em um ficheiro ou na lista atual de faturas.
+     *
+     * @param numeroFatura O número da fatura a ser verificado.
+     * @return {@code true} se o número já existir, {@code false} caso contrário.
+     */
     private boolean faturaExisteNoFicheiro(int numeroFatura) {
 
         if (!fat.exists()) {
@@ -964,6 +1109,12 @@ public class Funcoes {
         return false; // Se não encontrou a fatura no ficheiro
     }
 
+    /**
+     * Salva uma fatura em um ficheiro.
+     *
+     * @param fatura A fatura a ser persistida.
+     * @throws IOException Se ocorrer um erro ao escrever no ficheiro.
+     */
     public void salvarFaturaNoFicheiro(Fatura fatura) {
         File file = new File("faturas.txt");
 
@@ -1004,7 +1155,25 @@ public class Funcoes {
             System.out.println("Erro ao salvar a fatura no ficheiro: ");
         }
     }
-
+    /**
+     * Permite ao usuário editar uma fatura existente.
+     * <p>O método fornece as seguintes opções:</p>
+     * <ul>
+     *     <li>Adicionar um novo produto à fatura.</li>
+     *     <li>Editar um produto existente na fatura.</li>
+     *     <li>Remover um produto da fatura.</li>
+     *     <li>Sair do modo de edição.</li>
+     * </ul>
+     *
+     * <p>Fluxo:</p>
+     * <ol>
+     *     <li>Solicita o número da fatura a ser editada e verifica sua existência.</li>
+     *     <li>Exibe um menu para que o usuário escolha a ação desejada.</li>
+     *     <li>Executa a ação selecionada pelo usuário.</li>
+     * </ol>
+     *
+     * @throws NumberFormatException Se a entrada para o número da fatura ou opção for inválida.
+     */
     public void editarFatura() {
         System.out.println("--- Editar Fatura ---");
 
@@ -1073,7 +1242,79 @@ public class Funcoes {
             }
         }
     }
+    /**
+     * Salva a lista de faturas em um ficheiro no formato de objeto serializado.
+     *
+     * <p>O ficheiro gerado é chamado {@code faturas.obj} e é utilizado para armazenar
+     * as informações das faturas para reutilização futura.</p>
+     *
+     * @param faturas A lista de faturas a ser salva.
+     * @throws IOException Se ocorrer um erro ao salvar os dados no ficheiro.
+     */
+    public void salvarFaturas(List<Fatura> faturas) {
+        File file = new File("faturas.obj");
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
+            oos.writeObject(faturas);
+            System.out.println("Faturas salvas com sucesso.");
+        } catch (IOException e) {
+            System.out.println("Erro ao salvar faturas");
+        }
+    }
 
+    /**
+     * Carrega as faturas armazenadas no ficheiro {@code faturas.obj}.
+     *
+     * <p>O método lê o ficheiro serializado e converte-o novamente em uma lista de objetos
+     * {@code Fatura}. Se o ficheiro não existir ou não puder ser carregado, uma mensagem de erro é exibida.</p>
+     *
+     * @return A lista de faturas carregadas do ficheiro. Retorna {@code null} se ocorrer um erro.
+     * @throws IOException Se ocorrer um erro ao acessar o ficheiro.
+     * @throws ClassNotFoundException Se a classe {@code Fatura} não for encontrada.
+     */
+    public List<Fatura> carregarFaturas() {
+        File file = new File("faturas.obj");
+        List<Fatura> faturas = null;
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+            faturas = (List<Fatura>) ois.readObject();
+            System.out.println("Faturas carregadas com sucesso.");
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("Erro ao carregar faturas");
+        }
+        return faturas;
+    }
+
+    /**
+     * Permite ao usuário adicionar um produto a uma fatura existente.
+     *
+     * <p>O método interage com o usuário para coletar informações sobre o produto a ser adicionado,
+     * incluindo código, nome, descrição, quantidade, valor unitário e tipo (alimentar ou de farmácia).
+     * Ele realiza validações detalhadas para garantir a consistência e a integridade dos dados
+     * fornecidos.</p>
+     *
+     * <p>Fluxo de Adição:</p>
+     * <ol>
+     *     <li>Solicita ao usuário o código do produto, garantindo que ele não seja duplicado na fatura.</li>
+     *     <li>Coleta informações adicionais, como nome, descrição, quantidade e valor unitário.</li>
+     *     <li>Identifica se o produto é alimentar ou de farmácia.</li>
+     *     <li>Para produtos alimentares:
+     *         <ul>
+     *             <li>Classifica como taxa reduzida, intermediária ou normal.</li>
+     *             <li>Valida certificações e características, como se é biológico.</li>
+     *         </ul>
+     *     </li>
+     *     <li>Para produtos de farmácia:
+     *         <ul>
+     *             <li>Determina se o produto exige prescrição médica.</li>
+     *             <li>Coleta informações adicionais, como a categoria ou o nome do médico responsável.</li>
+     *         </ul>
+     *     </li>
+     * </ol>
+     *
+     * @param fatura A fatura à qual o produto será adicionado.
+     * @param scanner Um objeto {@code Scanner} para capturar entradas do usuário.
+     * @throws IllegalArgumentException Se entradas inválidas forem fornecidas durante a coleta de dados.
+     * @throws NumberFormatException Se entradas numéricas forem inválidas.
+     */
     public void adicionarProdutoFatura(Fatura fatura, Scanner scanner) {
         scanner = new Scanner(System.in);
         // Código do produto
@@ -1369,6 +1610,32 @@ public class Funcoes {
         fatura.adicionarProduto(produto);
     }
 
+    /**
+     * Permite ao usuário editar as informações de um produto já presente em uma fatura.
+     * O método realiza as seguintes operações de edição sobre o produto selecionado:
+     * <ul>
+     *     <li>Alterar o código do produto.</li>
+     *     <li>Alterar o nome do produto.</li>
+     *     <li>Alterar a descrição do produto.</li>
+     *     <li>Alterar a quantidade do produto.</li>
+     *     <li>Alterar o valor unitário do produto.</li>
+     * </ul>
+     * Além disso, dependendo do tipo de produto, realiza edições específicas para produtos alimentares ou farmacêuticos.
+     *
+     * <p>Fluxo de Edição:</p>
+     * <ol>
+     *     <li>Solicita o código do produto a ser editado.</li>
+     *     <li>Valida se o produto existe na fatura.</li>
+     *     <li>Solicita as novas informações do produto (código, nome, descrição, quantidade e valor unitário).</li>
+     *     <li>Se o produto for do tipo {@code ProdutoAlimentar}, chama o método de edição específico.</li>
+     *     <li>Se o produto for do tipo {@code ProdutoFarmacia}, chama o método de edição específico.</li>
+     * </ol>
+     *
+     * @param fatura A fatura que contém o produto a ser editado.
+     * @param scanner O objeto {@code Scanner} utilizado para capturar as entradas do usuário.
+     * @throws IllegalArgumentException Se o código ou o nome do produto for inválido.
+     * @throws NumberFormatException Se a entrada para valores numéricos (quantidade ou valor unitário) for inválida.
+     */
     public void editarProdutoFatura(Fatura fatura, Scanner scanner) {
         // Escolher produto por código
         if (fatura.getProdutos().isEmpty()) {
@@ -1488,6 +1755,21 @@ public class Funcoes {
         System.out.println("Produto atualizado com sucesso!");
     }
 
+    /**
+     * Permite ao usuário remover um produto de uma fatura existente.
+     * O método solicita o código do produto a ser removido e, se encontrado, o produto é retirado da lista de produtos da fatura.
+     *
+     * <p>Fluxo de Remoção:</p>
+     * <ol>
+     *     <li>Solicita ao usuário o código do produto a ser removido.</li>
+     *     <li>Verifica se o produto existe na fatura.</li>
+     *     <li>Se encontrado, remove o produto da fatura e exibe uma confirmação.</li>
+     *     <li>Se não encontrado, exibe uma mensagem informando que o produto não foi encontrado.</li>
+     * </ol>
+     *
+     * @param fatura A fatura da qual o produto será removido.
+     * @param scanner O objeto {@code Scanner} utilizado para capturar as entradas do usuário.
+     */
     public void removerProdutoFatura(Fatura fatura, Scanner scanner) {
         System.out.println("--- Eliminar Produto ---");
 
@@ -1511,12 +1793,27 @@ public class Funcoes {
         }
     }
 
+    /**
+     * Edita as informações de um produto farmacêutico.
+     * Este método chama o método {@code editarAtributos} da classe {@code ProdutoFarmacia}
+     * para permitir a edição dos atributos específicos do produto farmacêutico.
+     *
+     * @param produto O produto farmacêutico a ser editado.
+     * @param scanner O objeto {@code Scanner} utilizado para capturar as entradas do usuário.
+     */
     private void editarProdutoFarmacia(ProdutoFarmacia produto, Scanner scanner) {
         produto.editarAtributos(scanner);
     }
 
 
-
+    /**
+     * Edita as informações de um produto alimentar.
+     * Este método chama o método {@code editarAtributos} da classe {@code ProdutoAlimentar}
+     * para permitir a edição dos atributos específicos do produto alimentar.
+     *
+     * @param produto O produto alimentar a ser editado.
+     * @param scanner O objeto {@code Scanner} utilizado para capturar as entradas do usuário.
+     */
     private void editarProdutoAlimentar(ProdutoAlimentar produto, Scanner scanner) {
         produto.editarAtributos(scanner);
     }

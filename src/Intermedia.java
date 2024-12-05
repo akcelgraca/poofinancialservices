@@ -1,31 +1,82 @@
-import java.util.ArrayList;
+
 import java.util.Scanner;
 
+/**
+ * A classe {@code Intermedia} representa uma subclasse da  classe {@code ProdutoAlimentar} que está sujeito
+ * a uma taxa intermediária de IVA. Esses produtos podem pertencer às categorias:
+ * <ul>
+ *     <li>Congelados</li>
+ *     <li>Enlatados</li>
+ *     <li>Vinho</li>
+ * </ul>
+ * Produtos biológicos recebem um desconto adicional no IVA, e os produtos da categoria "Vinho"
+ * têm um acréscimo de 1% na taxa.
+ *
+ * @see ProdutoAlimentar
+ * @author Akcel Graça
+ * @version 3.0
+ */
 public class Intermedia extends ProdutoAlimentar {
-    private Categoria categoria;
 
+    /**
+     * Representa as categorias disponíveis para produtos de taxa intermediária.
+     */
     public enum Categoria {
         CONGELADOS,
         ENLATADOS,
         VINHO
     }
 
+    /**
+     * Categoria do produto, que pode ser "Congelados", "Enlatados" ou "Vinho".
+     */
+    private Categoria categoria;
+
+    /**
+     * Construtor para inicializar um produto de taxa intermediária.
+     *
+     * @param codigo Código único do produto.
+     * @param nome Nome do produto.
+     * @param descricao Descrição detalhada do produto.
+     * @param quantidade Quantidade disponível ou vendida.
+     * @param valorUnitario Valor unitário sem IVA.
+     * @param Biologico Indica se o produto é biológico ("Sim" ou "Não").
+     * @param categoria Categoria do produto, do tipo {@code Categoria}.
+     */
     public Intermedia(String codigo, String nome, String descricao, int quantidade, double valorUnitario,
-                             String Biologico, Categoria categoria) {
-        super(codigo,nome,descricao,quantidade,valorUnitario,Biologico);
+                      String Biologico, Categoria categoria) {
+        super(codigo, nome, descricao, quantidade, valorUnitario, Biologico);
         this.categoria = categoria;
     }
 
-
-
-    public Categoria getCategoria(){
+    /**
+     * Obtém a categoria do produto.
+     *
+     * @return A categoria do produto, do tipo {@code Categoria}.
+     */
+    public Categoria getCategoria() {
         return categoria;
     }
 
-    public void setCategoria(Categoria categoria){
+    /**
+     * Define a categoria do produto.
+     *
+     * @param categoria A categoria a ser atribuída ao produto, do tipo {@code Categoria}.
+     */
+    public void setCategoria(Categoria categoria) {
         this.categoria = categoria;
     }
 
+    /**
+     * Calcula o IVA do produto com base na localização do cliente e na categoria.
+     * <ul>
+     *     <li>Produtos da categoria "Vinho" têm um acréscimo de 1% na taxa de IVA.</li>
+     *     <li>Produtos biológicos recebem um desconto de 10% na taxa de IVA.</li>
+     * </ul>
+     *
+     * @param localizacao A localização do cliente que afeta a taxa de IVA.
+     * @return O valor do IVA calculado para o produto.
+     */
     @Override
     public double calcularIVA(Cliente.Localizacao localizacao) {
         double taxa = switch (localizacao) {
@@ -45,6 +96,11 @@ public class Intermedia extends ProdutoAlimentar {
         return arredondar(calcularValorTotalSemIVA() * taxa);
     }
 
+    /**
+     * Permite ao usuário editar os atributos específicos do produto, como a categoria e o estado biológico.
+     *
+     * @param scanner Um objeto {@code Scanner} para capturar entradas do usuário.
+     */
     @Override
     public void editarAtributos(Scanner scanner) {
         // Editar categoria
@@ -82,19 +138,33 @@ public class Intermedia extends ProdutoAlimentar {
         }
     }
 
+    /**
+     * Retorna o tipo do produto, que é "Intermedia".
+     *
+     * @return Uma string representando o tipo do produto.
+     */
     @Override
     public String getTipoProduto() {
         return "Intermedia";
     }
 
+    /**
+     * Retorna detalhes específicos sobre o produto, incluindo a categoria.
+     *
+     * @return Uma string contendo informações específicas do produto.
+     */
     @Override
     public String detalhesEspecificos() {
-        return super.detalhesEspecificos() + "\nCategoria: " + categoria;
+        return "Categoria: " + categoria + "\n" + super.detalhesEspecificos() + "\n";
     }
 
+    /**
+     * Retorna uma representação textual do produto.
+     *
+     * @return Uma string contendo os detalhes do produto.
+     */
     @Override
     public String toString() {
         return super.toString();
     }
 }
-
